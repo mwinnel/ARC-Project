@@ -20,8 +20,8 @@ library(utils)
 library(gtools)
 library(caTools)
 library(grDevices)
-library(rJava)
-library(rJython)
+#library(rJava)
+#library(rJython)
 #library(RMySQL)
 
 
@@ -39,7 +39,7 @@ source("functionsGeneric.R")
 
 sensor.names.all <- c("TempA", "TempC", "TempC2",
                       "pH", "pH2", "Cond", "Cond2","TurbA", 
-                      "TurbA2","TurbS1", "TurbS2")  
+                      "TurbA2","TurbS", "TurbS2")  
 
 alert.func.name <- c("TempA1", "TempC1", "TempC2",
                      "pH1", "pH2", "EC1", "EC2", "TurbA", 
@@ -54,9 +54,8 @@ file.names   <- c("TempA1", "TempC1", "TempC2",
 ##  CONGIF GLOBALS -- Edit sensor.config to be the sensors to include
 ##-----------------------------------------------------------------------------------------
 
-sensor.config <- c("TempA", "TempC", "TempC2",
-                   "pH", "pH2", "Cond", "Cond2","TurbA", 
-                   "TurbA2","TurbS1", "TurbS2")   
+sensor.config <- c("TempC", "pH", "Cond", "TurbS",
+                   "TempC2", "pH2", "Cond2", "TurbS2")   # order matters!!! effects how plots output
 
 kPeriod<-1440  
 

@@ -185,7 +185,7 @@ plotting <- function(data_set_2, varCol = 3, alarms, period.to.show, current_pos
     print("FALSE")
     plot(as.numeric(data_set_2$MINUTES), as.numeric(data_set_2[, varCol]), 
     #     xlim = c(data_set_2$MINUTES[current_pos] - period.to.show, data_set_2$MINUTES[current_pos]), 
-         axes = FALSE, pch=20, cex=.5, xlab="", ylab = "")
+         axes = FALSE, pch=20, cex=.5, xlab="", ylab = label)
     #type = "l")
   }
   

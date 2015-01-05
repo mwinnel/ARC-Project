@@ -24,8 +24,6 @@ repeat {
    
   for( j in 1:n ) {
     
-    print(j)
-  
     if(UPDATE[j]){
     # find the name of the sensor and get its spot number in the contraucted sensor names for this configuration
     ## could also use a switch 
@@ -34,7 +32,7 @@ repeat {
     ##-------------------------------------------------------------------------
     ##      STORE DATA  - **?? ADD to SQL database here
     ##-------------------------------------------------------------------------
-    print(UPDATE[j])
+
     filename <- paste("dataset_1",file.names[name.i[j]],".dat", sep="")
     write.table(dataset.mix[[j]], filename, row.names = FALSE, append = TRUE, col.names = FALSE)
     ### add to SQL database here ##################################################****************
@@ -51,8 +49,8 @@ repeat {
     len <- dim(dataset[[j]])[1]
     
     if(len > 2) {
-      print("plotting")
-        plotting(dataset[[j]], 3, alarms[[j]], kPeriod, len, TRUE, sensor.config[j])
+
+        plotting(dataset[[j]], 3, alarms[[j]], kPeriod, len, TRUE, label=sensor.config[j])
         
       #  dist <- paste("alerts." , file.names[[name.i[j]]], sep="")
       #  do.call( dist, list(dataset[[pos]] , len ))     
