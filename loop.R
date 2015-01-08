@@ -11,6 +11,7 @@
 #
 #
 #------------------------------------------------------------------------------------------
+### adding an update for testing - Melissa
 
 ### loop.R
 ####  
@@ -52,8 +53,9 @@ repeat {
 
         plotting(dataset[[j]], 3, alarms[[j]], kPeriod, len, TRUE, label=sensor.config[j])
         
-      #  dist <- paste("alerts." , file.names[[name.i[j]]], sep="")
-      #  do.call( dist, list(dataset[[pos]] , len ))     
+        dist <- paste("alerts." , file.names[[name.i[j]]], sep="")
+        print(dist)
+      #  do.call( dist, list(dataset[[j]] , len ))     
       
     }
     ## if length of data set greater than 2880 points - trim
