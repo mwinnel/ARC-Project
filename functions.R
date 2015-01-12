@@ -514,14 +514,15 @@ LabelTimeAxis <- function() {
 }
 
 
-
-################################################################################
+################################################################################ 
 #       alerts.pH1
 #
 ################################################################################
+
 alerts.pH1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
-                       period.to.show = 720, bounds.pH = c(6.5, 7), wait=c(25, 20)) {
+         period.to.show = 720, bounds.pH = c(6.5, 7), wait=c(25, 20)) {
   
+  data_set_2 <- dataset[[2]]
   print("IN ALERTS &&&&&&&&&&&&&&&&&&&&&&&&")
   trendline.pH = runquantile(data_set_2$pH, 241, probs=c(0.5, 0.75))
   POINTS <- FALSE
@@ -555,20 +556,21 @@ alerts.pH1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
       if ((countBW.pH1 >= wait[2]) && 
             (mean(data_set_2$pH[(current_pos-countBW.pH1):current_pos]) <= quantile(data_set_2$pH[(current_pos - 241):(current_pos - countBW.pH1)], probs = probS[3])) && 
             (min(data_set_2$pH[(current_pos-countBW.pH1):current_pos]) < bounds.pH[1])) {
-      
+        
         POINTS <- TRUE
         DIRECTION <- "BW"
       }
     }
   }
   
+  
+  #### this section fix up for new alarms structure.
   if (POINTS) {
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$pH[current_pos], DIRECTION, max(countAB.pH1, countBW.pH1))
     alarms.pH1 <<- rbind(alarms.pH1, a)
     write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.pH1.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
   }
 }
-
 
 
 ################################################################################
@@ -934,7 +936,7 @@ alerts.DisOxy <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95)
 #       alerts.EC1
 #
 ################################################################################
-alerts.EC1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
+alerts.Cond1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
                        period.to.show = 720, bounds.EC = c(6.5, 7), wait = c(20, 20)) {
   
   trendline.EC=runquantile(data_set_2$Cond, 241, probs=c(0.5,0.75))
@@ -987,7 +989,7 @@ alerts.EC1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
 #       alerts.EC2
 #
 ################################################################################
-alerts.EC2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
+alerts.Cond2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
                        period.to.show = 720, bounds.EC = c(6.5, 7), wait = c(20, 20)) {
   
   trendline.EC=runquantile(data_set_2$Cond, 241, probs=c(0.5,0.75))
@@ -1034,6 +1036,12 @@ alerts.EC2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   }
 }
 
+
+################################################################################
+#       Prepare Data & To.Database
+#
+################################################################################
+
 PrepareData <- function(data, type) {
   
   dateAndTime <- cbind(as.data.frame(unlist(strsplit(data[3], " "))[1]), as.data.frame(unlist(strsplit(data[3], " "))[2]))
@@ -1051,149 +1059,6 @@ PrepareData <- function(data, type) {
 }
 
 
-
-################################################################################
-#       GET DATA:  reads all waiting data from the already open socket
-#       doesnt open and close, although perhaps it should???
-
-
-#####################################  REPLACE WITH GETDATA2 ###################
-################################################################################
-
-
-GetDataOLD <- function() {
-  # Reads all waiting data from the already open socket.
-  #
-  # Returns:
-  #   List of data read from sensors.
-  
-  sensor1.TempA <- matrix(NA, nrow=0, ncol=3)
-  sensor2.TempA <- matrix(NA, nrow=0, ncol=3)
-  colnames(sensor1.TempA) <- c("Date", "Time", "TempA")
-  colnames(sensor2.TempA) <- c("Date", "Time", "TempA")
-  #output.TempA <- list(TempA1 = sensor1.TempA, TempA2 = sensor2.TempA)
-  
-  
-  sensor1.TempC <- matrix(NA, nrow=0, ncol=3)
-  sensor2.TempC <- matrix(NA, nrow=0, ncol=3)
-  colnames(sensor1.TempC) <- c("Date", "Time", "TempA")
-  colnames(sensor2.TempC) <- c("Date", "Time", "TempA")
-  #output.TempC <- list(TempC1 = sensor1.TempC, TempC2 = sensor2.TempC)
-  
-  
-  sensor1.pH <- matrix(NA, nrow=0, ncol=3)
-  sensor2.pH <- matrix(NA, nrow=0, ncol=3)
-  colnames(sensor1.pH) <- c("Date", "Time", "pH")
-  colnames(sensor2.pH) <- c("Date", "Time", "pH")
-  #output.pH <- list(pH1 = sensor1.pH, pH2 = sensor2.pH)
-  
-  sensor1.Cond <- matrix(NA, nrow=0, ncol=3)
-  sensor2.Cond <- matrix(NA, nrow=0, ncol=3)
-  colnames(sensor1.Cond) <- c("Date", "Time", "Cond")
-  colnames(sensor2.Cond) <- c("Date", "Time", "Cond")
-  #output.Cond <- list(Cond1 = sensor1.Cond, Cond2 = sensor2.Cond)
-  
-  sensor1.TurbA <- matrix(NA, nrow=0, ncol=3)
-  sensor2.TurbA <- matrix(NA, nrow=0, ncol=3)
-  colnames(sensor1.TurbA) <- c("Date", "Time", "TurbA")
-  colnames(sensor2.TurbA) <- c("Date", "Time", "TurbA")
-  #output.TurbA <- list(TurbA1 = sensor1.TurbA, TurbA2 = sensor2.TurbA)
-  
-  sensor1.TurbS <- matrix(NA, nrow=0, ncol=3)
-  sensor2.TurbS <- matrix(NA, nrow=0, ncol=3)
-  colnames(sensor1.TurbS) <- c("Date", "Time", "TurbS")
-  colnames(sensor2.TurbS) <- c("Date", "Time", "TurbS")
-  #output.TurbS <- list(TurbS1 = sensor1.TurbS, TurbS2 = sensor2.TurbS)  
-  
-  repeat{
-    write.socket(sensor.socket,"Data\r\n")
-    
-    dataSS <- read.socket(sensor.socket)
-    print(paste("DATA =",dataSS))
-    
-    if(!is.na(match(dataSS,""))) {
-      close.socket(sensor.socket)
-      sensor.socket <<- make.socket(host="localhost", port=8888)
-      read.socket(sensor.socket)
-      break
-    }
-    
-    
-    if(!is.na(match(dataSS,"\r\n"))) {
-      close.socket(sensor.socket)
-      sensor.socket <<- make.socket(host="localhost", port=8888)
-      read.socket(sensor.socket)
-      break
-    }
-    a <- unlist(strsplit(dataSS, "\\,"))
-    
-    if (!is.na(match(a[1], "None\r\n"))){
-      break
-    }
-    if(!is.na(a[2])){
-      if (a[2] == "TempA") {
-        ToDatabase(a, "TempA1")
-        sensor1.TempA <- rbind(sensor1.TempA, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      if (a[2] == "TempA2") {
-        ToDatabase(a, "TempA2")
-        sensor2.TempA <- rbind(sensor2.TempA, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      
-      if (a[2] == "TempC") {
-        ToDatabase(a, "TempC1")
-        sensor1.TempC <- rbind(sensor1.TempC, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      if (a[2] == "TempC2") {
-        ToDatabase(a, "TempC2")
-        sensor2.TempC <- rbind(sensor2.TempC, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      
-      if (a[2] == "pH") {
-        ToDatabase(a, "pH1")
-        sensor1.pH <- rbind(sensor1.pH, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      if (a[2] == "pH2") {
-        ToDatabase(a, "pH2")
-        sensor2.pH <- rbind(sensor2.pH, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      
-      if (a[2] == "Cond") { 
-        ToDatabase(a, "Cond1")
-        sensor1.Cond <- rbind(sensor1.Cond, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      if (a[2] == "Cond2") { 
-        ToDatabase(a, "Cond2")
-        sensor2.Cond <- rbind(sensor2.Cond, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      
-      if (a[2] == "TurbA") { 
-        ToDatabase(a,"TurbA1")
-        sensor1.TurbA <- rbind(sensor1.TurbA, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      if (a[2] == "TurbA2") { 
-        ToDatabase(a,"TurbA2")
-        sensor2.TurbA <- rbind(sensor2.TurbA, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      
-      if (a[2] == "TurbS") {
-        ToDatabase(a, "TurbS1")
-        sensor1.TurbS <- rbind(sensor1.TurbS, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-      if (a[2] == "TurbS2") {
-        ToDatabase(a, "TurbS2")
-        sensor2.TurbS <- rbind(sensor2.TurbS, c(unlist(strsplit(a[3], " "))[1], unlist(strsplit(a[3], " "))[2], strsplit(a[4], "\r\n")[1]))
-      }
-    }
-  }
-  
-  return(list(TempA1 = as.data.frame(sensor1.TempA), TempA2 = as.data.frame(sensor2.TempA),
-              TempC1 = as.data.frame(sensor1.TempC), TempC2 = as.data.frame(sensor2.TempC),
-              pH1 = as.data.frame(sensor1.pH), pH2 = as.data.frame(sensor2.pH),
-              Cond1 = as.data.frame(sensor1.Cond), Cond2 = as.data.frame(sensor2.Cond),
-              TurbA1 = as.data.frame(sensor1.TurbA), TurbA2 = as.data.frame(sensor2.TurbA),
-              TurbS1 = as.data.frame(sensor1.TurbS), TurbS2 = as.data.frame(sensor2.TurbS)))
-}
 
 
 ToDatabase <- function(rawData, type) {

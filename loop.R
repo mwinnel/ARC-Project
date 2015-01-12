@@ -21,26 +21,28 @@ repeat {
   ##------------------------------------------------------------------------- 
   dataset.mix <- GetData()
   n <- length(dataset.mix)
+
 #source("store.R")   - moved to below loop
    
   for( j in 1:n ) {
     
     if(UPDATE[j]){
-    # find the name of the sensor and get its spot number in the contraucted sensor names for this configuration
+    # find the name of the sensor and get its spot number in the sensor names for this configuration
     ## could also use a switch 
     
-      
+
     ##-------------------------------------------------------------------------
     ##      STORE DATA  - **?? ADD to SQL database here
     ##-------------------------------------------------------------------------
 
     filename <- paste("dataset_1",file.names[name.i[j]],".dat", sep="")
+
+    
     write.table(dataset.mix[[j]], filename, row.names = FALSE, append = TRUE, col.names = FALSE)
+
     ### add to SQL database here ##################################################****************
     dataset[[j]] <- rbind(dataset[[j]], dataset.mix[[j]])
-    
-    
-    
+
     
     ##-------------------------------------------------------------------------
     ##      PROCESS DATA  -- changed
@@ -48,14 +50,17 @@ repeat {
 
     
     len <- dim(dataset[[j]])[1]
-    
+
     if(len > 2) {
 
         plotting(dataset[[j]], 3, alarms[[j]], kPeriod, len, TRUE, label=sensor.config[j])
         
         dist <- paste("alerts." , file.names[[name.i[j]]], sep="")
         print(dist)
-      #  do.call( dist, list(dataset[[j]] , len ))     
+
+        if(len > 241){  ## call alerts function  - need only dataset and length
+              do.call( dist, list(dataset[[j]] , len )) 
+        }
       
     }
     ## if length of data set greater than 2880 points - trim

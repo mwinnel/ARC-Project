@@ -172,7 +172,6 @@ HandleSuppliedTime <- function(dataset, date.fmt, hourstart, minstart, listinput
 
 plotting <- function(data_set_2, varCol = 3, alarms, period.to.show, current_pos, POINTS.SHOW=FALSE, label, setdims = FALSE, dims=c(7,7.4)) {       
   
-  #data_set_2 <- dataset$pH
   
   tl <- runquantile(data_set_2[, varCol], 241, probs=c(0.5, 0.75))
   
@@ -192,14 +191,14 @@ plotting <- function(data_set_2, varCol = 3, alarms, period.to.show, current_pos
   lines(data_set_2$MINUTES, tl[, 1], col="green", cex=1.5)
   box()
   
+
   if (POINTS.SHOW) {
-    points(alarms[alarms$DIRECTION == "AB", 1], alarms[alarms$DIRECTION == "AB", 2],pch = 20, col = "blue")
-    points(alarms[alarms$DIRECTION == "BW", 1], alarms[alarms$DIRECTION == "BW", 2],pch = 20, col = "red")
+   # points(alarms[alarms$DIRECTION == "AB", 1], alarms[alarms$DIRECTION == "AB", 2],pch = 20, col = "blue")
+  #  points(alarms[alarms$DIRECTION == "BW", 1], alarms[alarms$DIRECTION == "BW", 2],pch = 20, col = "red")
+    points(alarms$MINUTES,alarms$pH,pch = 20, col = "red")
   }
   
   axis(2)
   LabelTimeAxis()
 }
 
-
- 
