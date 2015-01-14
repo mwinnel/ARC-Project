@@ -13,12 +13,15 @@
 num.points <- 241
 
 for(j in 1:n) {
+  
   file <- paste("dataset_" , file.names[[name.i[j]]], ".dat", sep="")
-  newdataset <- scan(file, '', skip = lenpH1-num.points, nlines = num.points, sep = '\n')
+  df.names <- c("Date", "Time", sensor.names.all[name.i[j]], "MINUTES")
+  
+  dataset.previous <- read.table(file, col.names=df.names )
+  lenp <- dim(dataset.previous)[1]
+  newdataset <- scan(file, '', skip = lenp-num.points, nlines = num.points, sep = '\n')
 
   set.df <- matrix(NA, nrow=0, ncol=4)
-  
-
   for(i in 1:num.points){
   
     a <- unlist(strsplit(newdataset[i], " "))
@@ -26,11 +29,15 @@ for(j in 1:n) {
     set.df <- rbind(set.df, newdata)
   }
 
+  ## dataset is our main data frame - do not delete or remove
   dataset[[j]] <- cbind(as.data.frame(set.df[, 1:2]), as.double(set.df[, 3]),as.double(set.df[, 4]))
-  colnames(dataset[[j]]) <- c("Date", "Time", sensor.names.all[name.i[j]], "MINUTES")
+  colnames(dataset[[j]]) <- df.names
 
   plotting(dataset[[j]], 3, alarms[[j]], kPeriod,241, 241, label=sensor.names.all[name.i[j]])
-
+  
+  # do some cleanup // note: moving to function auto cleans at return...(check this)
+  rm(dataset.previous, newdataset, newdata, set.df, a, lenp, file, df.names)  
+  
 
 }
 
