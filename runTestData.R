@@ -17,18 +17,20 @@
 #------------------------------------------------------------------------------------------
 
 
-#rm(list=ls())                        # clean out the workspace
+# rm(list=ls())                        # clean out the workspace
 setDir <- "C:/Users/s2783343/Documents/ARC/Current System/sentineltest (r program)/test data"
 setwd(setDir)
 
 
-#source("functions.R")
-#source("functionsGeneric.R")
+# source("functions.R")
+# source("functionsGeneric.R")
 
-getNext  <- function(dataset, points = 1){  
+getNext <- function(dataset, start.pos = 1, end.pos = 2) {  
   
-  ## take the head points off the dataset
-  dflist <- llply(dataset, head, points)
+  
+  dflist <- llply(dataset, head, end.pos) 
+  dflist <- llply(dflist, tail, -(start.pos-1)) 
+      
   return(dflist)
   
 }
@@ -45,52 +47,58 @@ sensor.names.all <- c("TempA", "TempC", "TempC2", "pH", "pH2",
 alert.func.name <- c("TempA1", "TempC1", "TempC2", "pH1", "pH2", 
                      "EC1", "EC2", "TurbA", "TurbA2","TurbS1", "TurbS2")
 
-file.names   <- c("TempA1", "TempC1", "TempC2", "pH1", "pH2",
+file.names <- c("TempA1", "TempC1", "TempC2", "pH1", "pH2",
                   "Cond1", "Cond2", "TurbA", "TurbA2","TurbS1", "TurbS2")
 
 
-##-------------------------------------------------------------------------
-##  Librarys + source files needed
-##-------------------------------------------------------------------------
+#-------------------------------------------------------------------------
+#  Librarys + source files needed
+#-------------------------------------------------------------------------
 library(utils)
 library(gtools)
 library(caTools)
 library(plyr)
 
 
-dataframes <- list.files(path=setDir, pattern = "dataset_") 
-datasetRealTime <- llply(dataframes, read.table,  header = T,stringsAsFactors=F, sep = "")
+dataframes <- list.files(path = setDir, pattern = "dataset_") 
+datasetRealTime <- llply(dataframes, read.table,  header = T, stringsAsFactors = F, sep = "")
 datasetRealTime <- setNames(datasetRealTime, dataframes)
 
 
-llply(datasetRealTime, head, n = 1)              ## print first point in each of data set list        
+llply(datasetRealTime, head, n = 10)              ## print first point in each of data set list        
 
 # how many sensors are we working with
 n <- length(datasetRealTime)
 
 # get the names of the sensors 
 sensor.config <- 1
-for(i in 1:n){
+for (i in 1:n) {
   sensor.config[i] <- unlist(lapply(datasetRealTime, colnames) [[i]][3])
 }
 
 
 # match the names
-name.i <- match(sensor.config,file.names)  ### position to get the sensor correct names from both 
+name.i <- match(sensor.config, file.names)  ### position to get the sensor correct names from both 
 
 
 #-------------------------------------------------------------------------
 #  load data and workspace
 #-------------------------------------------------------------------------
-pos <- 1000               # start spot in the array   
-end.points <- 1440        # set the end row position
+startIndex <- 1               # start spot in the array   
+stopIndex <- 10000        # set the end row position
+maxBufferSize <- 2880  # we keep 2880 points maximum in memory
+startIndexAdj <- startIndex
 
-
-for(i in pos:end.points ){  
+for (i in startIndex:stopIndex ) {  
   
     print(i)
-    dataset.mix <- getNext(datasetRealTime, i)
-
+    dataset.mix <- getNext(datasetRealTime, startIndexAdj, i)
+    
+     if (i > maxBufferSize+startIndex) {
+       startIndexAdj <- startIndexAdj + 1  # shift the window by 1
+     }
+   
+    
     #------------------------------------------------------------------------------------------
     
     # PASTE FUNCTIONS HERE TO TEST - dataset.mix is a list containing your data
@@ -98,7 +106,16 @@ for(i in pos:end.points ){
     # example if only want ph 
     
     llply(datasetRealTime, head, n = 1)              ## print first point in each of data set list        
-    dataset.pH1 <- dataset.mix$dataset_pH1.dat
+    data.pH1 <- dataset.mix$dataset_pH1.dat
+    
+    
+    plot(data.pH1$MINUTES, data.pH1$pH1, type = "l" )
+    Sys.sleep(.1)
+    
+    
+    # NOTE : Add trimming when data set reaches 2880 - like live in field
+    # if length of data set greater than 2880 points - trim
+
     
     #------------------------------------------------------------------------------------------
    
