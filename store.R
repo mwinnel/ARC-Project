@@ -1,3 +1,6 @@
+## now defunct - replaced by single line call in loop.R using lists()
+
+
 if(dim(dataset.mix$TempC1)[1] > 0) {
   UPDATE <- TRUE
   if(exists("dataset.TempC1")) {

@@ -108,6 +108,10 @@ for (i in startIndex:stopIndex ) {
     data.pH1 <- dataset.mix$dataset_pH1.dat
     data.TempC1 <- dataset.mix$$dataset_TempC1.dat
     
+    
+    
+    
+    
     plot(data.pH1$MINUTES, data.pH1$pH1, type = "l" )
     Sys.sleep(.1)
 
