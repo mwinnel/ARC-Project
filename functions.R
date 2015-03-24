@@ -522,7 +522,7 @@ LabelTimeAxis <- function() {
 alerts.pH1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
          period.to.show = 720, bounds.pH = c(6.5, 7), wait=c(25, 20)) {
   
-  data_set_2 <- dataset[[2]]
+ # data_set_2 <- dataset[[2]]
   print("IN ALERTS &&&&&&&&&&&&&&&&&&&&&&&&")
   trendline.pH = runquantile(data_set_2$pH, 241, probs=c(0.5, 0.75))
   POINTS <- FALSE
@@ -741,11 +741,12 @@ alerts.TurbS2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95)
 ################################################################################
 alerts.TempC1 <- function(data_set_2, current_pos, probS = c(.05,.95,.05,.95),
                           period.to.show = 720, bounds.TempC = c(6.5,7), wait = c(20,20)){
-  
+ 
+  print("HERE")
   trendline.TempC = runquantile(data_set_2$TempC, 241, probs = c(0.5,0.75))
   POINTS <- FALSE
   DIRECTION <- NULL
-  
+  print("HERE 2")
   if (data_set_2$TempC[current_pos] >= trendline.TempC[, 1][current_pos]) {
     countAB.TempC1 <<- countAB.TempC1 + 1
     countBW.TempC1 <<- 0

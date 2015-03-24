@@ -19,22 +19,7 @@ GetData <- function(varname = sensor.config) {
     dflist[[i]] <- data.frame(matrix(NA, nrow=0, ncol=4))
     colnames(dflist[[i]]) <- c("Date", "Time", varname[i], "MINUTES")
     
-  }
-  
-    
- #   lapply(dflist, setNames, paste0("col", 1:2))
-#    dflist <- lapply(dflist, setNames, c("Date", "Time", varname, "MINUTES"))
-  
-#    lapply(dflist, "colnames(dflist[c(1,3)])<-", varname)
-    
-
-
-  
-#  datalist <- list(dat1 = data.frame(A = 1:10, B = rnorm(10)),
-#                   dat2 = data.frame(C = 100:109, D = rnorm(10)) )
-  
- # lapply(datalist, names)
-  
+}
   
   
   
@@ -184,7 +169,7 @@ plotting <- function(data_set_2, varCol = 3, alarms, period.to.show, current_pos
     print("FALSE")
     plot(as.numeric(data_set_2$MINUTES), as.numeric(data_set_2[, varCol]), 
     #     xlim = c(data_set_2$MINUTES[current_pos] - period.to.show, data_set_2$MINUTES[current_pos]), 
-         axes = FALSE, pch=20, cex=.5, xlab="", ylab = label)
+         axes = FALSE, pch=20, cex=.5, xlab="", type="l", ylab = label)
     #type = "l")
   }
   
