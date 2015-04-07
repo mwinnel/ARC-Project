@@ -12,76 +12,85 @@
 #
 #------------------------------------------------------------------------------------------
 
-
 repeat {
-  
   #-------------------------------------------------------------------------
   #      GET DATA 
   #------------------------------------------------------------------------- 
-  
   dataset.mix <- GetData()
   n <- length(dataset.mix)
-
+  
+  #-------------------------------------------------------------------------
+  #      PROCESS DATA 
+  #-------------------------------------------------------------------------   
   for ( j in 1:n ) {
     
     if ( UPDATE[j] ) {
-      # find the name of the sensor and get its spot number in the sensor names for this configuration
-      # note: could also use a switch 
-      
-      
       #---------------------------------------------------------------------------------
       #      STORE DATA  -  ADD to SQL database here - currently storing to flat file
       #---------------------------------------------------------------------------------
       
-      filename <- paste("dataset_",file.names[name.i[j]],".dat", sep="")  
-      print(filename)         ## TEST: CHECK THESE MATCH CORRECTLY
-      print(head(dataset[[j]]))
-      
-      
+      filename <- paste("dataset_",file.names[name.i[j]],".dat", sep="")
+      csvfilename <- paste("dataset_",file.names[name.i[j]],".csv", sep="")  
       write.table(dataset.mix[[j]], filename, row.names = FALSE, append = TRUE, col.names = FALSE)
+      
       dataset[[j]] <- rbind(dataset[[j]], dataset.mix[[j]])
       
       #-------------------------------------------------------------------------
       #      PROCESS DATA  -- changed
       #-------------------------------------------------------------------------
-      
-      
       len <- dim(dataset[[j]])[1]
       
       if (len > 2) {
         
-       
         if( !is.na( match(sensor.config[j],sensor.plot.process) ) ) {   ## Is this a sensor value we wish to plot and process for alarms?
           
           plotting(dataset[[j]], 3, alarms[[j]], 240, len, TRUE, label=sensor.config[j]) 
           
           dist <- paste("alerts." , file.names[[name.i[j]]], sep = "")
           print(dist)
-        
+          
           if (len > 241) {          # call alerts function  - need only dataset and length
             do.call( dist, list(dataset[[j]] , len )) 
           }
         }
         
       }
-
+      
       
       # if length of data set greater than 2880 points - trim
       if (len > 2880) { dataset[[j]] <- tail(dataset[[j]], n = -1) }
       
-      UPDATE[j] <- FALSE
+      write.csv(tail(dataset[[j]], n = RealtimeRange), file = csvfilename, row.names = FALSE) 
+      csvname <- paste("dataset_",file.names[name.i[j]],".csv", sep="")
       
-    }
-    
-    
-    
-  }
+      tryCatch({ ftpUpload(csvname, paste("ftp://192.168.30.10/4/",csvname,sep="")) }, condition=function(ex) {
+        Sys.sleep(5)
+        tryCatch({ ftpUpload(csvname, paste("ftp://192.168.30.10/4/",csvname,sep=""))}, condition=function(ex) {
+          a <- print(ex)
+          write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
+      })
+      
+      
+      
+      
+      # CHECK : System Time - if maintenance due.
+      if(LastUPDATE_COUNT[j] == 1440) {
+        
+        compressed <- run.douglas(tail(dataset[[j]]),1440)
+        csvname2 <-  paste("douglas_",file.names[name.i[j]],".csv", sep="")
+        write.csv(compressed, file = csvname2, row.names = FALSE, append = FALSE)
+        ftpUpload(csvname2, paste("ftp://192.168.30.10/4/",tail(dataset[[j]]$MINUTES,n=1),csvname2,sep=""))
+        LastUPDATE_COUNT[j]<-0
+        
+      }else{ 
+        LastUPDATE_COUNT[j] <- LastUPDATE_COUNT[j]+1
+      }
+      
+      UPDATE[j] <- FALSE
+    }      
+  }  
+  #Sys.sleep(RealtimeInterval)
   
-  
-  # CHECK : System Time - if maintenance due.
-  # if(Sys.Time())
-  
-
 }
 
 

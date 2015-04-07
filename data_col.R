@@ -63,6 +63,8 @@ sensor.plot.process <- c("TempC", "pH", "Cond", "TurbS",
 
 
 kPeriod <- 1440  
+RealtimeRange <- 241
+RealtimeInterval <- 10
 
 name.i <- match(sensor.config,sensor.names.all)  ### index to get the sensor name variations. 
 n <- length(sensor.config)  # how many sensors in this unit
@@ -72,6 +74,7 @@ lapply(1:5,function(i) data.frame())
 dataset <- sapply(sensor.config,function(x) data.frame())
 alarms <- sapply(sensor.config,function(x) NULL)
 UPDATE <- vector("logical", n)
+LastUPDATE_COUNT <-  c(rep(0,n))
 
 
 # NOTE: Can use llply and not have to do for loops anymore - or sapply
