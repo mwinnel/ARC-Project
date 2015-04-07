@@ -63,9 +63,9 @@ repeat {
       write.csv(tail(dataset[[j]], n = RealtimeRange), file = csvfilename, row.names = FALSE) 
       csvname <- paste("dataset_",file.names[name.i[j]],".csv", sep="")
       
-      tryCatch({ ftpUpload(csvname, paste("ftp://192.168.30.10/4/",csvname,sep="")) }, condition=function(ex) {
+      tryCatch({ ftpUpload(csvname, paste(ftpAddress,csvname,sep="")) }, condition=function(ex) {
         Sys.sleep(5)
-        tryCatch({ ftpUpload(csvname, paste("ftp://192.168.30.10/4/",csvname,sep=""))}, condition=function(ex) {
+        tryCatch({ ftpUpload(csvname, paste(ftpAddress,csvname,sep=""))}, condition=function(ex) {
           a <- print(ex)
           write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
       })
@@ -79,7 +79,7 @@ repeat {
         compressed <- run.douglas(tail(dataset[[j]]),1440)
         csvname2 <-  paste("douglas_",file.names[name.i[j]],".csv", sep="")
         write.csv(compressed, file = csvname2, row.names = FALSE, append = FALSE)
-        ftpUpload(csvname2, paste("ftp://192.168.30.10/4/",tail(dataset[[j]]$MINUTES,n=1),csvname2,sep=""))
+        ftpUpload(csvname2, paste(ftpAddress,tail(dataset[[j]]$MINUTES,n=1),csvname2,sep=""))
         LastUPDATE_COUNT[j]<-0
         
       }else{ 

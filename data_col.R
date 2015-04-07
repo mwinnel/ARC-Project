@@ -65,6 +65,10 @@ sensor.plot.process <- c("TempC", "pH", "Cond", "TurbS",
 kPeriod <- 1440  
 RealtimeRange <- 241
 RealtimeInterval <- 10
+ftpAdd <- "ftp://192.168.30.10"
+nodeID <- 4
+ftpAddress <- paste(ftpAdd,"/",nodeID,"/",sep="")
+
 
 name.i <- match(sensor.config,sensor.names.all)  ### index to get the sensor name variations. 
 n <- length(sensor.config)  # how many sensors in this unit
