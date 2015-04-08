@@ -1101,3 +1101,8 @@ ToDatabase <- function(rawData, type) {
     dbDisconnect(con)
   } 
 }
+
+#compress realtime data into tgz format
+ToTgz <- function(filename, files) {
+  tar(filename,files,compression='gzip',tar="tar")
+}
