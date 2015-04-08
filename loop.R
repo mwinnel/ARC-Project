@@ -12,17 +12,32 @@
 #
 #------------------------------------------------------------------------------------------
 
+
+key.sensor <-  match(sensor.config,sensor.plot.process) 
+
+
 repeat {
   #-------------------------------------------------------------------------
   #      GET DATA 
   #------------------------------------------------------------------------- 
+ 
+  ptm <- proc.time()
   dataset.mix <- GetData()
-  n <- length(dataset.mix)
   
+  # Stop the clock
+ 
+  
+
+  
+  n <- length(dataset.mix)
+  t <- proc.time() - ptm
+  print(t)
   #-------------------------------------------------------------------------
   #      PROCESS DATA 
   #-------------------------------------------------------------------------   
   for ( j in 1:n ) {
+    
+    ptm2 <- proc.time()
     
     if ( UPDATE[j] ) {
       #---------------------------------------------------------------------------------
@@ -42,15 +57,24 @@ repeat {
       
       if (len > 2) {
         
-        if( !is.na( match(sensor.config[j],sensor.plot.process) ) ) {   ## Is this a sensor value we wish to plot and process for alarms?
+        if( !is.na(key.sensor[j]) ) {   ## Is this a sensor value we wish to plot and process for alarms?
           
           plotting(dataset[[j]], 3, alarms[[j]], 240, len, TRUE, label=sensor.config[j]) 
           
-          dist <- paste("alerts." , file.names[[name.i[j]]], sep = "")
-          print(dist)
           
+            
           if (len > 241) {          # call alerts function  - need only dataset and length
+           
+            
+            dist <- paste("alerts." , file.names[[name.i[j]]], sep = "")
+            print(dist)
+            
+           
+            
             do.call( dist, list(dataset[[j]] , len )) 
+            
+       
+            
           }
         }
         
@@ -60,21 +84,20 @@ repeat {
       # if length of data set greater than 2880 points - trim
       if (len > 2880) { dataset[[j]] <- tail(dataset[[j]], n = -1) }
       
-      write.csv(tail(dataset[[j]], n = RealtimeRange), file = csvfilename, row.names = FALSE) 
+      write.csv(tail(dataset[[j]], n = 1), file = csvfilename, row.names = FALSE) 
       csvname <- paste("dataset_",file.names[name.i[j]],".csv", sep="")
       
       tryCatch({ ftpUpload(csvname, paste(ftpAddress,csvname,sep="")) }, condition=function(ex) {
-        Sys.sleep(5)
-        tryCatch({ ftpUpload(csvname, paste(ftpAddress,csvname,sep=""))}, condition=function(ex) {
-          a <- print(ex)
-          write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
-      })
+   
+      a <- print(ex)
+       write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
+
       
       
       
       
-      # CHECK : System Time - if maintenance due.
-      if(LastUPDATE_COUNT[j] == 1440) {
+      # CHECK : System Time - if maintenance due. - every 3 hours for testing
+      if(LastUPDATE_COUNT[j] == 180) {
         
         compressed <- run.douglas(tail(dataset[[j]]),1440)
         csvname2 <-  paste("douglas_",file.names[name.i[j]],".csv", sep="")
@@ -87,9 +110,17 @@ repeat {
       }
       
       UPDATE[j] <- FALSE
+      
+      #Sys.sleep(RealtimeInterval)
+      # Stop the clock
+      t2 <- proc.time() - ptm2
+      print("LOOP")
+      print(t2)
+      
+    Sys.sleep(2)
     }      
   }  
-  #Sys.sleep(RealtimeInterval)
+
   
 }
 

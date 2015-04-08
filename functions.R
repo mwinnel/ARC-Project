@@ -522,9 +522,22 @@ LabelTimeAxis <- function() {
 alerts.pH1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
          period.to.show = 720, bounds.pH = c(6.5, 7), wait=c(25, 20)) {
   
+
  # data_set_2 <- dataset[[2]]
   print("IN ALERTS &&&&&&&&&&&&&&&&&&&&&&&&")
+  
+  # Stop the clock
+  #proc.time() - ptm
+
+
+  
   trendline.pH = runquantile(data_set_2$pH, 241, probs=c(0.5, 0.75))
+ 
+ #proc.time() - ptm
+  
+#  apply(embed(x[1:10000],100),1,quantile,.75) 
+  
+  
   POINTS <- FALSE
   DIRECTION <- NULL ##
   
@@ -570,6 +583,7 @@ alerts.pH1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
     alarms.pH1 <<- rbind(alarms.pH1, a)
     write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.pH1.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
   }
+
 }
 
 

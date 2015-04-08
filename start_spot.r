@@ -10,15 +10,16 @@
 #
 #------------------------------------------------------------------------------------------
 
-num.points <- 241
+num.points <- 2880
 
 for (j in 1:n) {
   
   file <- paste("dataset_" , file.names[[name.i[j]]], ".dat", sep="")
   df.names <- c("Date", "Time", sensor.names.all[name.i[j]], "MINUTES")
   
-  dataset.previous <- read.table(file, col.names=df.names )
-  lenp <- dim(dataset.previous)[1]
+  #dataset.previous <- read.table(file, col.names=df.names, sep=" ")
+  lenp <- countLines(file)  #countLines works 3times faster when files large
+   
   newdataset <- scan(file, '', skip = lenp-num.points, nlines = num.points, sep = '\n')
   
   set.df <- matrix(NA, nrow=0, ncol=4)
@@ -29,14 +30,12 @@ for (j in 1:n) {
     set.df <- rbind(set.df, newdata)
   }
   
-  
   # dataset is our main data frame - do not delete or remove
   dataset[[j]] <- cbind(as.data.frame(set.df[, 1:2]), as.double(set.df[, 3]),as.double(set.df[, 4]))
   colnames(dataset[[j]]) <- df.names
   
-  
   # do some cleanup // note: moving to function auto cleans at return...(check this)
-  rm(dataset.previous, newdataset, newdata, set.df, a, lenp, file, df.names)  
+  rm(newdataset, newdata, set.df, a, lenp, file, df.names)  
   
   
 }
@@ -44,11 +43,14 @@ for (j in 1:n) {
 for (j in 1:n) {
   # plot data
   par(mar=c(1,1,1,1))
-  plotting(dataset[[j]], 3, alarms[[j]], kPeriod,241, 241, label = sensor.names.all[name.i[j]])
-  
+  plotting(dataset[[j]], 3, alarms[[j]], kPeriod,241, 241, label = sensor.names.all[name.i[j]]) 
   
 }
 
-
+# Stop the clock
+#proc.time() - ptm
+#proc.time() - ptm
+#user  system elapsed 
+#15.53    0.19   15.81 
 
 
