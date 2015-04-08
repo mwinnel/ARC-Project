@@ -25,6 +25,7 @@ repeat {
   for ( j in 1:n ) {
     
     if ( UPDATE[j] ) {
+      updatecounter <- updatecounter+1
       #---------------------------------------------------------------------------------
       #      STORE DATA  -  ADD to SQL database here - currently storing to flat file
       #---------------------------------------------------------------------------------
@@ -63,15 +64,7 @@ repeat {
       write.csv(tail(dataset[[j]], n = RealtimeRange), file = csvfilename, row.names = FALSE) 
       csvname <- paste("dataset_",file.names[name.i[j]],".csv", sep="")
       
-      tryCatch({ ftpUpload(csvname, paste(ftpAddress,csvname,sep="")) }, condition=function(ex) {
-        Sys.sleep(5)
-        tryCatch({ ftpUpload(csvname, paste(ftpAddress,csvname,sep=""))}, condition=function(ex) {
-          a <- print(ex)
-          write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
-      })
-      
-      
-      
+
       
       # CHECK : System Time - if maintenance due.
       if(LastUPDATE_COUNT[j] == 1440) {
@@ -84,11 +77,32 @@ repeat {
         
       }else{ 
         LastUPDATE_COUNT[j] <- LastUPDATE_COUNT[j]+1
+        D_updatecounter <- D_updatecounter+1
       }
       
       UPDATE[j] <- FALSE
     }      
-  }  
+  }
+  if(updatecounter>=11){
+    ToTgz(tgzName,files)
+    tryCatch({ ftpUpload(tgzName, paste(ftpAddress,tgzName,sep="")) }, condition=function(ex) {
+      Sys.sleep(5)
+      tryCatch({ ftpUpload(tgzName, paste(ftpAddress,tgzName,sep=""))}, condition=function(ex) {
+        a <- print(ex)
+        write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
+    })
+    updatecounter <- 0
+  }
+  if(D_updatecounter>=1440*11){
+    ToTgz(D_tgzName,D_files)
+    tryCatch({ ftpUpload(D_tgzName, paste(ftpAddress,D_tgzName,sep="")) }, condition=function(ex) {
+      Sys.sleep(5)
+      tryCatch({ ftpUpload(D_tgzName, paste(ftpAddress,D_tgzName,sep=""))}, condition=function(ex) {
+        a <- print(ex)
+        write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
+    })
+    D_updatecounter <- 0
+  }
   #Sys.sleep(RealtimeInterval)
   
 }

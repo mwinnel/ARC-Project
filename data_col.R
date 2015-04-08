@@ -20,6 +20,7 @@ library(utils)
 library(gtools)
 library(caTools)
 library(grDevices)
+library(RCurl)
 #library(rJava)
 #library(rJython)
 #library(RMySQL)
@@ -200,3 +201,17 @@ colnames(alarms.TempC2) <- c("MINUTES", "TempC", "DIRECTION", "lenTIME")
 
 system.codes2 <- as.data.frame(matrix(0, nrow = 1, ncol = 3))
 colnames(system.codes2) <- c("MINUTES", "Codes", "Action")
+
+
+#Files to transfer in compressed format
+#files <- c("dataset_Cond1.csv","dataset_Cond2.csv","dataset_pH1.csv","dataset_pH2.csv","dataset_TurbS1.csv","dataset_TurbS2.csv","dataset_TurbA1.csv","dataset_TurbA2.csv","dataset_TempC1.csv","dataset_TempC2.csv","dataset_TempA1.csv")
+files <- paste("dataset_",file.names,".csv",sep="")
+D_files <- paste("douglas_",file.names,".csv", sep="")
+#Filename of the compressed  data
+tgzName <- "data.tgz"
+D_tgzName <- "Douglas_data.tgz"
+#Update counter for realtime data
+updatecounter <- 0
+
+#update counter for Douglas data
+D_updatecounter <- 0
