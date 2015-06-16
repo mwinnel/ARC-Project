@@ -62,7 +62,7 @@ distance <- function(point1,point2,point3) {
 
 run.douglas <- function(data.set,epsil=0.01){
 
-      dataD <- cbind(data.set[4],data.set[3])
+      dataD <- cbind(data.set$MINUTES,data.set[3])
       result <<- rbind(dataD[1,],dataD[dim(dataD)[1],])
 
       douglas(dataD,epsil)

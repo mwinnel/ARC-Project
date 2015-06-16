@@ -10,6 +10,195 @@
 #
 #------------------------------------------------------------------------------------------
 
+extractCurve <- function(){
+  
+    #extract from when state changed - minus wait time
+    
+  
+  
+}
+
+
+
+
+
+dataTest <- function(varname = sensor.config){
+  
+  n <- length(varname)
+  dflist <- vector( "list", n )
+  
+  for( i in 1:n ){
+    
+    dflist[[i]] <- data.frame(matrix(NA, nrow=0, ncol=4))
+    colnames(dflist[[i]]) <- c("Date", "Time", varname[i], "MINUTES")
+    
+    
+    
+  }
+  
+  
+  dflist[[1]] <- as.data.frame(cbind( event$Date[1],event$Time[1],
+                                      as.numeric(as.character(event$Temp[1])),
+                                      as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[2]] <- as.data.frame(cbind( event$Date[1],event$Time[1],
+                                      as.numeric(as.character(event$Temp[1])),
+                                      as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[3]] <-as.data.frame( cbind( event$Date[1],event$Time[1],
+                                      as.numeric(as.character(event$pH[1])),
+                                      as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[4]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$Cond[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[5]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$Turb[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[6]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$Turb[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[7]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$Temp[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[8]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$pH[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[9]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$Cond[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[10]] <- as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$Turb[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[11]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                        as.numeric(as.character(event$Turb[1])),
+                                        as.numeric(as.character(event$MINUTES[1]))))
+  #c("TempA", "TempC", "pH", "Cond", "TurbS","TurbA", "TempC2", "pH2", "Cond2", "TurbS2","TurbA2")
+  
+    event <<- tail(event,n=-1)
+  
+    
+    UPDATE <<-  c(TRUE, TRUE, TRUE, TRUE, TRUE,TRUE, TRUE, TRUE, TRUE, TRUE,TRUE) #11 variables - updated only for 4 key
+  
+  for( i in 1:n ){
+    
+  #  dflist[[i]] <- data.frame(matrix(NA, nrow=0, ncol=4))
+    colnames(dflist[[i]]) <- c("Date", "Time", varname[i], "MINUTES")
+    
+    
+  }
+
+
+  return(dflist)
+  
+  
+}
+
+
+
+dataTestNew <- function(varname = sensor.config){
+  
+  n <- length(varname)
+  dflist <- vector( "list", n )
+  
+  for( i in 1:n ){
+    
+    dflist[[i]] <- data.frame(matrix(NA, nrow=0, ncol=4))
+    colnames(dflist[[i]]) <- c("Date", "Time", varname[i], "MINUTES")
+    
+    
+    
+  }
+  
+ # Date     Time TempA TempC TempC2    pH   pH2   Cond  Cond2 TurbA TurbA2 TurbS TurbS2 MINUTES
+  dflist[[1]] <- as.data.frame(cbind( event$Date[1],event$Time[1],
+                                      as.numeric(as.character(event$TempA[1])),
+                                      as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[2]] <- as.data.frame(cbind( event$Date[1],event$Time[1],
+                                      as.numeric(as.character(event$TempC[1])),
+                                      as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[3]] <-as.data.frame( cbind( event$Date[1],event$Time[1],
+                                      as.numeric(as.character(event$pH[1])),
+                                      as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[4]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$Cond[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[5]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$TurbS[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[6]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$TurbA[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  dflist[[7]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$TempC2[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[8]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$pH2[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[9]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$Cond2[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[10]] <- as.data.frame(cbind( event$Date[1],event$Time[1],
+                                       as.numeric(as.character(event$TurbS2[1])),
+                                       as.numeric(as.character(event$MINUTES[1]))))
+  
+  
+  dflist[[11]] <-  as.data.frame(cbind( event$Date[1],event$Time[1],
+                                        as.numeric(as.character(event$TurbA2[1])),
+                                        as.numeric(as.character(event$MINUTES[1]))))
+  #c("TempA", "TempC", "pH", "Cond", "TurbS","TurbA", "TempC2", "pH2", "Cond2", "TurbS2","TurbA2")
+  
+  event <<- tail(event,n=-1)
+  
+  
+  UPDATE <<-  c(TRUE, TRUE, TRUE, TRUE, TRUE,TRUE, TRUE, TRUE, TRUE, TRUE,TRUE) #11 variables - updated only for 4 key
+  
+  for( i in 1:n ){
+    
+    #  dflist[[i]] <- data.frame(matrix(NA, nrow=0, ncol=4))
+    colnames(dflist[[i]]) <- c("Date", "Time", varname[i], "MINUTES")
+    
+    
+  }
+  
+  
+  return(dflist)
+  
+  
+}
+
+
+
+
+
+
+
+
 GetData <- function(varname = sensor.config) {
 
   n <- length(varname)
@@ -19,7 +208,7 @@ GetData <- function(varname = sensor.config) {
     dflist[[i]] <- data.frame(matrix(NA, nrow=0, ncol=4))
     colnames(dflist[[i]]) <- c("Date", "Time", varname[i], "MINUTES")
     
-}
+    }
   
   
   
@@ -155,7 +344,7 @@ HandleSuppliedTime <- function(dataset, date.fmt, hourstart, minstart, listinput
 #
 ################################################################################
 
-plotting <- function(data_set_2, varCol = 3, alarms, period.to.show, current_pos, POINTS.SHOW=FALSE, label, setdims = FALSE, dims=c(7,7.4)) {       
+plotting <- function(data_set_2, varCol = 3, alarms.x,alarms.y, period.to.show, current_pos, POINTS.SHOW=FALSE, label, setdims = FALSE, dims=c(7,7.4)) {       
   
   
   tl <- runquantile(data_set_2[, varCol], 241, probs=c(0.5, 0.75))
@@ -180,7 +369,8 @@ plotting <- function(data_set_2, varCol = 3, alarms, period.to.show, current_pos
   if (POINTS.SHOW) {
    # points(alarms[alarms$DIRECTION == "AB", 1], alarms[alarms$DIRECTION == "AB", 2],pch = 20, col = "blue")
   #  points(alarms[alarms$DIRECTION == "BW", 1], alarms[alarms$DIRECTION == "BW", 2],pch = 20, col = "red")
-    points(alarms$MINUTES,alarms$pH,pch = 20, col = "red")
+
+    points(as.numeric(alarms.x),as.numeric(alarms.y),pch = 20, col = "red")
   }
   
   axis(2)

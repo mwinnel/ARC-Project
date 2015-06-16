@@ -4,6 +4,8 @@
 
 kHeader <- "header text"
 
+as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
+
 ##-------------------------------------------------------------------------
 ## mini functions
 ##-------------------------------------------------------------------------
@@ -55,7 +57,7 @@ EarlyMorning <- function(x) {
 
 ### NOTE:  This might not be correct for Barrier 2 behaviour
 PossibleLowFlow<- function(x, biny) { 
-    
+  
   EARLY <- EarlyMorning(Sys.time()) 
   ##test for DO.REDOX increase. 
   if(EARLY && (x == TempC.Redox.DO || x == Redox.DO || biny[2] == 1)) { 
@@ -78,39 +80,40 @@ PossibleLowFlow<- function(x, biny) {
 sendSMS <- function(mobile.num, subj) {
   require(rJython)
   rJython2 <- rJython()
-
-
+  
+  
   rJython2$exec( "import smtplib" )
   rJython2$exec("from email.MIMEText import MIMEText")
-
+  
   smsMSG<-c(
-  #Email settings
-  "fromaddr = 'winnel@gmail.com'",
-  paste("toaddrs =  '",mobile.num,"@directsms.com.au'",sep=""),
-  paste("msgRoot = MIMEText('",subj,"')",sep=""),
-  "msgRoot['Subject'] = ''",
-  "msgRoot['From'] = fromaddr",
-  "msgRoot['To'] = toaddrs",
-  "username = 'winnel@gmail.com'",
-  "password = ''",
-
-  #Set SMTP server and send email, e.g., google mail SMTP server
-  "server = smtplib.SMTP('smtp.gmail.com:587')",
-  "server.ehlo()",
-  "server.starttls()",
-  "server.ehlo()",
-  "server.login(username,password)",
-  "server.sendmail(fromaddr, toaddrs, msgRoot.as_string())",
-  "server.quit()")
-
-
+    #Email settings
+    "fromaddr = 'winnel@gmail.com'",
+    paste("toaddrs =  '",mobile.num,"@directsms.com.au'",sep=""),
+    paste("msgRoot = MIMEText('",subj,"')",sep=""),
+    "msgRoot['Subject'] = ''",
+    "msgRoot['From'] = fromaddr",
+    "msgRoot['To'] = toaddrs",
+    "username = 'winnel@gmail.com'",
+    "password = ''",
+    
+    #Set SMTP server and send email, e.g., google mail SMTP server
+    "server = smtplib.SMTP('smtp.gmail.com:587')",
+    "server.ehlo()",
+    "server.starttls()",
+    "server.ehlo()",
+    "server.login(username,password)",
+    "server.sendmail(fromaddr, toaddrs, msgRoot.as_string())",
+    "server.quit()")
+  
+  
   tryCatch({ jython.exec(rJython2,smsMSG) }, condition=function(ex) {
     Sys.sleep(5)
     tryCatch({ jython.exec(rJython2,smsMSG) }, condition=function(ex) {
-    a <- print(ex)
-    write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
+      a <- print(ex)
+      write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
   })
 }
+
 
 
 
@@ -118,56 +121,56 @@ sendEmail <- function(toaddr,fromaddr,imageName,subject,headerT) {
   #import smtplib
   require(rJython)
   rJython <- rJython()
-
+  
   rJython$exec( "import smtplib" )
   rJython$exec("from email.MIMEText import MIMEText")
   ##rJython$exec("import base64")
   rJython$exec("from email.mime.image import MIMEImage")
   rJython$exec("from email.mime.multipart import MIMEMultipart" )
-
+  
   #username <- trim(email)
   #ee <- ''
-
+  
   mail<-c(
-  #Email settings
-  paste("fromaddr =  '",fromaddr,"'",sep=""),
-  paste("toaddrs =  '",toaddr,"'",sep=""),
-  paste("subject =  '",subject,"'",sep=""),
-
-  "msgRoot = MIMEMultipart('related')",
-  "msgRoot['Subject'] = subject",
-  "msgRoot['From'] = fromaddr",
-  "msgRoot['To'] = toaddrs",
-
-  "msgRoot.preamble = 'This is a multi-part message in MIME format.'",
-  "msgAlternative = MIMEMultipart('alternative')",
-  "msgRoot.attach(msgAlternative) ",
-  "msgText = MIMEText('This is the alternative plain text message.')",
-  "msgAlternative.attach(msgText)",
-  paste("msgText = MIMEText('<b><i>",headerT,"</i></b><img src=cid:image1>', 'html') ",sep=""),
-  "msgAlternative.attach(msgText)",
-  paste("fp = open('",imageName,".jpeg', 'rb')",sep=""),
-  "msgImage = MIMEImage(fp.read())",
-  "fp.close()",
-  "msgImage.add_header('Content-ID', '<image1>')",
-  "msgRoot.attach(msgImage)",
-
-  #### NEED TO FIND NEW SERVER TO SEND THIS FROM
-  "username = 'winnel@gmail.com'",
-  "password = ''",
-
-  #Set SMTP server and send email, e.g., google mail SMTP server
-
-  "server = smtplib.SMTP('smtp.gmail.com:587')",
-  "server.ehlo()",
-  "server.starttls()",
-  "server.ehlo()",
-  "server.login(username,password)",
-  "server.sendmail(fromaddr, toaddrs, msgRoot.as_string())",
-  "server.quit()" )
-
+    #Email settings
+    paste("fromaddr =  '",fromaddr,"'",sep=""),
+    paste("toaddrs =  '",toaddr,"'",sep=""),
+    paste("subject =  '",subject,"'",sep=""),
+    
+    "msgRoot = MIMEMultipart('related')",
+    "msgRoot['Subject'] = subject",
+    "msgRoot['From'] = fromaddr",
+    "msgRoot['To'] = toaddrs",
+    
+    "msgRoot.preamble = 'This is a multi-part message in MIME format.'",
+    "msgAlternative = MIMEMultipart('alternative')",
+    "msgRoot.attach(msgAlternative) ",
+    "msgText = MIMEText('This is the alternative plain text message.')",
+    "msgAlternative.attach(msgText)",
+    paste("msgText = MIMEText('<b><i>",headerT,"</i></b><img src=cid:image1>', 'html') ",sep=""),
+    "msgAlternative.attach(msgText)",
+    paste("fp = open('",imageName,".jpeg', 'rb')",sep=""),
+    "msgImage = MIMEImage(fp.read())",
+    "fp.close()",
+    "msgImage.add_header('Content-ID', '<image1>')",
+    "msgRoot.attach(msgImage)",
+    
+    #### NEED TO FIND NEW SERVER TO SEND THIS FROM
+    "username = 'winnel@gmail.com'",
+    "password = ''",
+    
+    #Set SMTP server and send email, e.g., google mail SMTP server
+    
+    "server = smtplib.SMTP('smtp.gmail.com:587')",
+    "server.ehlo()",
+    "server.starttls()",
+    "server.ehlo()",
+    "server.login(username,password)",
+    "server.sendmail(fromaddr, toaddrs, msgRoot.as_string())",
+    "server.quit()" )
+  
   ##some how control the mail variables - make strings ??
-
+  
   tryCatch({ jython.exec(rJython,mail) }, condition=function(ex) {
     Sys.sleep(5)
     tryCatch({ jython.exec(rJython,mail) }, condition=function(ex) {
@@ -178,73 +181,116 @@ sendEmail <- function(toaddr,fromaddr,imageName,subject,headerT) {
 
 
 ##-------------------------------------------------------------------------
+##
 ##      ALARMING INTELLIGENCE    -- new
+##
+##
 ##-------------------------------------------------------------------------
-AlarmLogicTest <- function(current.minutes = 30, last.alarms = 0, current.code = 0, 
-                           reporting.length.wait = 30, dataset.pH = 0, EMAIL = FALSE, SMS = FALSE) {   
+AlarmLogicTest <- function(current.minutes = 30, 
+                           last.alarms = 0, 
+                           current.code = 0, 
+                           reporting.length.wait = 30, 
+                           dataset.pH = 0, 
+                           EMAIL = FALSE, 
+                           SMS = FALSE) {
+  
+  
+  
   mins.since <- current.minutes - last.alarms      
   lastcode <- current.code  #store last code
   binary <- mins.since < 3  ## OVERLAP PERIOD
   current.c <- ToDecimal(binary)
   action <<- "NONE"    
-    
+  
   if (lastcode != current.c) {
     statechange.start.minutes <<- current.minutes 
   }
-
+  
+  
+  
   if ((sum(binary) >= 2 || binary[1]) && (current.minutes - emailSENT) >= email.int.time) {
+    
     lengthpH <- length(dataset.pH$pH)
     dif <- current.minutes-statechange.start.minutes       
+    
+    ##checks PH outside second level bounds
     if (sum(binary) == 1 && 
-        binary[1] &&
-        sum(dataset.pH$pH[(lengthpH-dif):lengthpH] < ph.second.LOW) == 0 &&
-        sum(dataset.pH$pH[(lengthpH-dif):lengthpH] > ph.second.HIGH) == 0) { 
-          action <<- "SINGLE-PH"   
-          print("SINGLE_PH")         
-    }##checks PH outside second level bounds
-          
+          binary[1] &&
+          sum(dataset.pH$pH[(lengthpH-dif):lengthpH] < ph.second.LOW) == 0 &&
+          sum(dataset.pH$pH[(lengthpH-dif):lengthpH] > ph.second.HIGH) == 0) { 
+      action <<- "SINGLE-PH"   
+      print("SINGLE_PH")         
+    }
+    
+    
+    # ignore single turbidity alarms
     if (sum(binary) == 2 && binary[3]) { 
       action <<- "TURB-IGNORE"  #exit         
-      return(current.c) 
+     # return(current.c) 
     } 
-           
-    if (PossibleLowFlow(current.c, binary)) {
-      action <<- "POSSIBLE-LOW-FLOW" #exit
-      tex <- as.character(paste("Barrier",BarrierNO,"#S", SentinelNO, action,
-                                as.character(format(Sys.time(), "%H:%M %b %d %Y"))))
-      sendSMS(mobile.num=Melissa.M, tex)   
-      sendSMS(mobile.num=Roger.M, tex) 
-			sendSMS(mobile.num=Hujuin.M, tex) 
-			emailSENT <<- current.minutes
-      return(current.c)
-    }
+    
+    
+    #ignore low flow situations
+ #   if (PossibleLowFlow(current.c, binary)) {
+#      action <<- "POSSIBLE-LOW-FLOW" #exit
+#      tex <- as.character(paste("Barrier",BarrierNO,"#S", SentinelNO, action,
+#                                as.character(format(Sys.time(), "%H:%M %b %d %Y"))))
+#      sendSMS(mobile.num=Melissa.M, tex)   
+#      sendSMS(mobile.num=Roger.M, tex) 
+#      sendSMS(mobile.num=Hujuin.M, tex) 
+#      emailSENT <<- current.minutes
+#      return(current.c)
+#    }
+    
+    
+    
+    ## add more site specifit logic tests here
+    
+ #   if (EMAIL) {
+#      SaveImage(current.minutes)
+#      subject <- paste(subjectTEXT, SentinelNO)
+#      headerTEXT <- kHeader
+#      sendEmail(emailTO, emailFROM, current.minutes, subject, headerTEXT)
+#      action <<- "EMAIL"
+#      emailSENT <<- current.minutes
+#    }
+    
+#    if (SMS) {  
+  #    print(cat("SEND SMS -- ", variables[binary], "\n"))
+  #    a <- paste(variables[binary], sep = "", collapse = " ")
+  #    tex <- as.character(paste("Barrier", BarrierNO, "#S", SentinelNO, 
+                              #  " Alarms detected in ", a, ".  :: ",
+                            #    as.character(format(Sys.time(), "%H:%M %b %d %Y"))))
+#      sendSMS(mobile.num = Melissa.M, tex)   
+#      sendSMS(mobile.num = Roger.M, tex)
+#      sendSMS(mobile.num = Hujuin.M, tex)           
+#      emailSENT <<- current.minutes
+#      if(action == "NONE") {
+#        action <<- "SMS"
+#      } 
+#    } 
 
-    if (EMAIL) {
-      SaveImage(current.minutes)
-      subject <- paste(subjectTEXT, SentinelNO)
-      headerTEXT <- kHeader
-      sendEmail(emailTO, emailFROM, current.minutes, subject, headerTEXT)
-      action <<- "EMAIL"
-      emailSENT <<- current.minutes
-    }
+  }
 
-    if (SMS) {  
-      print(cat("SEND SMS -- ", variables[binary], "\n"))
-      a <- paste(variables[binary], sep = "", collapse = " ")
-      tex <- as.character(paste("Barrier", BarrierNO, "#S", SentinelNO, 
-                                " Alarms detected in ", a, ".  :: ",
-                                as.character(format(Sys.time(), "%H:%M %b %d %Y"))))
-      sendSMS(mobile.num = Melissa.M, tex)   
-      sendSMS(mobile.num = Roger.M, tex)
-			sendSMS(mobile.num = Hujuin.M, tex)           
-      emailSENT <<- current.minutes
-      if(action == "NONE") {
-        action <<- "SMS"
-      } 
-    }               
-  }         
-  return(current.c)
+if(current.c > 0)
+{ 
+  print(binary)
+  print(variables[binary])
+  
+  
+  a <- paste(variables[binary], sep = "", collapse = " ")
+  print(a)
+  
+  tex <- as.character(paste(siteName,  " Alarms detected in ", a ))
+                     
+}else {
+  tex <- "normal"
 }
+
+  return(list(code = current.c, txt = tex))
+
+} 
+
 
 ################################################################
 # Initialisations required for calculations about time and dates
@@ -519,37 +565,63 @@ LabelTimeAxis <- function() {
 #
 ################################################################################
 
-alerts.pH1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
-         period.to.show = 720, bounds.pH = c(6.5, 7), wait=c(25, 20)) {
+alerts.pH1 <- function(data_set_2, 
+                       current_pos, 
+                       wait, 
+                       probS = c(.05, .95, .05, .95),
+                       period.to.show = 720, 
+                       bounds.pH = bounds.pH2) {
   
- # data_set_2 <- dataset[[2]]
-  print("IN ALERTS &&&&&&&&&&&&&&&&&&&&&&&&")
-  trendline.pH = runquantile(data_set_2$pH, 241, probs=c(0.5, 0.75))
+  ### IN THIS EXTENDED VERSION - adding a seaonal trend value +_ adjusting based on seasonal trend of data for daily 
+  ## for this site
+  
+  
+  if(current.code == 0){
+    trendline.pH <- runquantile(data_set_2$pH, 241, probs=c(0.5, 0.75))
+  }else {
+    ## stop the baseline update
+    dir.count <- max(countAB.pH1,countBW.pH1)
+    data_pause <- c(data_set_2$pH[1:(current_pos-dir.count)],
+                    rep(data_set_2$pH[(current_pos-dir.count)],dir.count))
+    trendline.pH <- runquantile(data_pause, 241, probs=c(0.5, 0.75))
+    
+  }
+  
+  
   POINTS <- FALSE
-  DIRECTION <- NULL ##
+  DIRECTION <- NULL 
+  
+  ## FOR ABOVE
+  
+  # data_set_2 <- data_set_2 + seasonalAdjust 
   
   if (data_set_2$pH[current_pos] >= trendline.pH[, 1][current_pos]) {
     countAB.pH1 <<- countAB.pH1 + 1
     countBW.pH1 <<- 0
     
-    ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if((!is.na(mean(data_set_2$pH[(current_pos-countAB.pH1):current_pos])))&&
-         (!is.na(max(data_set_2$pH[(current_pos-countAB.pH1):current_pos])))&&
-         (!is.na(quantile(data_set_2$pH[(current_pos - 241):(current_pos - countAB.pH1)], probs = probS[4])))) {
+    ### if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
+    if(  (!is.na( mean(data_set_2$pH[(current_pos-countAB.pH1):current_pos]) )) &&
+           (!is.na( max( data_set_2$pH[(current_pos-countAB.pH1):current_pos]) ) ) &&
+           (!is.na( quantile(data_set_2$pH[(current_pos - 241):(current_pos - countAB.pH1)], probs = probS[4]))) 
+    ){
+      
       if ((countAB.pH1 >= wait[1]) && 
             (mean(data_set_2$pH[(current_pos-countAB.pH1):current_pos]) >= quantile(data_set_2$pH[(current_pos - 241):(current_pos - countAB.pH1)], probs = probS[4])) && 
             (max(data_set_2$pH[(current_pos-countAB.pH1):current_pos]) > bounds.pH[2])) {
         POINTS <- TRUE
         DIRECTION <- "AB" ##
       }
+      
     }
   }
+  
+  ## FOR BELOW - + 
   
   if (data_set_2$pH[current_pos] < trendline.pH[, 1][current_pos]) {
     countAB.pH1 <<- 0
     countBW.pH1 <<- countBW.pH1 + 1
     
-    ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
+    ### if smaller sample mean is greater then previous 6 hours and point outside bounds then  ALARM
     if((!is.na(mean(data_set_2$pH[(current_pos-countBW.pH1):current_pos])))&&
          (!is.na(max(data_set_2$pH[(current_pos-countBW.pH1):current_pos])))&&
          (!is.na(quantile(data_set_2$pH[(current_pos - 241):(current_pos - countBW.pH1)], probs = probS[3])))) {
@@ -570,16 +642,32 @@ alerts.pH1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
     alarms.pH1 <<- rbind(alarms.pH1, a)
     write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.pH1.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
   }
+  
+  
+  
 }
-
 
 ################################################################################
 #       alerts.pH2
 #
 ################################################################################
-alerts.pH2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
-                       period.to.show = 720, bounds.pH = c(6.5, 7), wait=c(25, 20)) {
-  trendline.pH = runquantile(data_set_2$pH, 241, probs=c(0.5, 0.75))
+alerts.pH2 <- function(data_set_2, current_pos, wait=c(5, 5), probS = c(.05, .95, .05, .95),
+                       period.to.show = 720, bounds.pH = bounds.pH2) {
+  
+  
+  if(current.code == 0){
+    trendline.pH <- runquantile(data_set_2$pH, 241, probs=c(0.5, 0.75))
+  }else {
+    ## stop the baseline update
+    dir.count <- max(countAB.pH1,countBW.pH1)
+    data_pause <- c(data_set_2$pH[1:(current_pos-dir.count)],
+                    rep(data_set_2$pH[(current_pos-dir.count)],dir.count))
+    trendline.pH <- runquantile(data_pause, 241, probs=c(0.5, 0.75))
+    
+  }
+  
+  
+  
   POINTS <- FALSE
   DIRECTION <- NULL ##
   
@@ -631,7 +719,7 @@ alerts.pH2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
 #
 ################################################################################
 alerts.TurbS1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
-                          period.to.show = 720, bounds.TurbS = c(6.5, 7), wait = c(20, 20)) {
+                          period.to.show = 720, bounds.TurbS = bounds.TurbS2, wait = c(20, 20)) {
   
   trendline.TurbS = runquantile(data_set_2$TurbS, 241, probs=c(0.5, 0.75))
   POINTS <- FALSE
@@ -686,7 +774,7 @@ alerts.TurbS1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95)
 #
 ################################################################################
 alerts.TurbS2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
-                         period.to.show = 720, bounds.TurbS = c(6.5, 7), wait = c(20, 20)) {
+                         period.to.show = 720, bounds.TurbS = bounds.TurbS2, wait = c(20, 20)) {
   
   trendline.TurbS = runquantile(data_set_2$TurbS, 241, probs=c(0.5, 0.75))
   POINTS <- FALSE
@@ -740,7 +828,7 @@ alerts.TurbS2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95)
 #
 ################################################################################
 alerts.TempC1 <- function(data_set_2, current_pos, probS = c(.05,.95,.05,.95),
-                          period.to.show = 720, bounds.TempC = c(6.5,7), wait = c(20,20)){
+                          period.to.show = 720, bounds.TempC = bounds.TempC2, wait = c(20,20)){
  
   print("HERE")
   trendline.TempC = runquantile(data_set_2$TempC, 241, probs = c(0.5,0.75))
@@ -795,7 +883,7 @@ alerts.TempC1 <- function(data_set_2, current_pos, probS = c(.05,.95,.05,.95),
 #
 ################################################################################
 alerts.TempC2 <- function(data_set_2, current_pos, probS = c(.05,.95,.05,.95),
-                         period.to.show = 720, bounds.TempC = c(6.5,7), wait = c(20,20)){
+                         period.to.show = 720, bounds.TempC = bounds.TempC2, wait = c(20,20)){
   
   trendline.TempC = runquantile(data_set_2$TempC, 241, probs = c(0.5,0.75))
   POINTS <- FALSE
@@ -849,7 +937,7 @@ alerts.TempC2 <- function(data_set_2, current_pos, probS = c(.05,.95,.05,.95),
 #
 ################################################################################
 alerts.Redox <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
-                         period.to.show = 720, bounds.Redox = c(6.5, 7), wait = c(20, 20)) {
+                         period.to.show = 720, bounds.Redox =  bounds.Redox2, wait = c(20, 20)) {
   
   trendline.Redox = runquantile(data_set_2$Redox, 241, probs = c(0.5,0.75))
   POINTS <- FALSE
@@ -938,7 +1026,7 @@ alerts.DisOxy <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95)
 #
 ################################################################################
 alerts.Cond1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
-                       period.to.show = 720, bounds.EC = c(6.5, 7), wait = c(20, 20)) {
+                       period.to.show = 720, bounds.EC = bounds.EC2, wait = c(20, 20)) {
   
   trendline.EC=runquantile(data_set_2$Cond, 241, probs=c(0.5,0.75))
   POINTS <- FALSE
@@ -979,7 +1067,7 @@ alerts.Cond1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   if(POINTS == TRUE) {
     ##store points - add show history flag
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$Cond[current_pos], DIRECTION, max(countAB.EC1, countBW.EC1))
-    alarms.EC1 <<- rbind(alarms.EC1,a)
+    alarms.Cond1 <<- rbind(alarms.Cond1,a)
     write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.EC1.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
   }
 }
@@ -991,7 +1079,7 @@ alerts.Cond1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
 #
 ################################################################################
 alerts.Cond2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
-                       period.to.show = 720, bounds.EC = c(6.5, 7), wait = c(20, 20)) {
+                       period.to.show = 720, bounds.EC = bounds.EC2, wait = c(20, 20)) {
   
   trendline.EC=runquantile(data_set_2$Cond, 241, probs=c(0.5,0.75))
   POINTS <- FALSE
@@ -1032,7 +1120,7 @@ alerts.Cond2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   if(POINTS == TRUE) {
     ##store points - add show history flag
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$Cond[current_pos], DIRECTION, max(countAB.EC2, countBW.EC2))
-    alarms.EC2 <<- rbind(alarms.EC2,a)
+    alarms.Cond2 <<- rbind(alarms.Cond2,a)
     write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.EC2.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
   }
 }
@@ -1086,4 +1174,10 @@ ToDatabase <- function(rawData, type) {
     }
     dbDisconnect(con)
   } 
+}
+
+
+#compress realtime data into tgz format
+ToTgz <- function(filename, files) {
+  tar(filename,files,compression='gzip',tar="tar")
 }

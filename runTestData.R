@@ -23,6 +23,10 @@ setDir <- "C:/Users/s2783343/Documents/ARC/Current System/sentineltest (r progra
 setwd(setDir)
 
 
+
+head(event1,n=1)
+
+event1 <- tail(event1,n=-1)
 # source("functions.R")
 # source("functionsGeneric.R")
 
@@ -60,7 +64,7 @@ library(plyr)
 dataframes <- list.files(path = setDir, pattern = "dataset_") 
 datasetRealTime <- llply(dataframes, read.table,  header = T, stringsAsFactors = F, sep = "")
 datasetRealTime <- setNames(datasetRealTime, dataframes)
-
+datasetRealTime <- list(dataset.pH)
 
 llply(datasetRealTime, head, n = 2)              ## print first point in each of data set list        
 
@@ -68,10 +72,16 @@ llply(datasetRealTime, head, n = 2)              ## print first point in each of
 n <- length(datasetRealTime)
 
 # get the names of the sensors 
-sensor.config <- 1
-for (i in 1:n) {
-  sensor.config[i] <- unlist(lapply(datasetRealTime, colnames) [[i]][3])
+sensor.config <- c("pH1")
+
+
+for(i in 1:n){
+  
+  datasetRealTime[[i]][[3]] <- as.numeric(as.character(datasetRealTime[[i]][[3]]))
+  datasetRealTime[[i]][[4]] <- as.numeric(as.character(datasetRealTime[[i]][[4]]))
+  
 }
+
 
 
 # match the names to their index position
@@ -83,20 +93,27 @@ name.i <- match(sensor.config, file.names)
 #-------------------------------------------------------------------------
 
 startIndex <- 1               # set start row index   
-stopIndex <- 7000             # set end row index
+stopIndex <- 142181             # set end row index
 maxBufferSize <- 2880           # we keep 2880 points maximum in memory
 startIndexAdj <- startIndex
 
-for (i in startIndex:stopIndex ) {  
+for (j in startIndex:stopIndex ) {  
   
  
-    print(i)
-    dataset.mix <- getNext(datasetRealTime, startIndexAdj, i)
+    print(j)
+    dataset.mix <- getNext(datasetRealTime, startIndexAdj, j)
     
-     if (i > maxBufferSize+startIndex) {
+     if (j > maxBufferSize+startIndex) {
        startIndexAdj <- startIndexAdj + 1  # shift the window by 1
      }
    
+    
+    for(i in 1:n){
+      
+      dataset.mix[[i]][[3]] <- as.numeric(as.character(dataset.mix[[i]][[3]]))
+      dataset.mix[[i]][[4]] <- as.numeric(as.character(dataset.mix[[i]][[4]]))
+      
+    }
     
     #------------------------------------------------------------------------------------------
     
@@ -105,19 +122,27 @@ for (i in startIndex:stopIndex ) {
     # example if only want ph 
     
     llply(datasetRealTime, head, n = 1)              # view first point in each of data set list        
-    data.pH1 <- dataset.mix$dataset_pH1.dat
-    data.TempC1 <- dataset.mix$$dataset_TempC1.dat
+    data.pH1 <- dataset.mix[[1]]
+   # data.TempC1 <- dataset.mix$$dataset_TempC1.dat
     
     
-    
-    
-    
-    plot(data.pH1$MINUTES, data.pH1$pH1, type = "l" )
-    Sys.sleep(.1)
-
-    
-    #------------------------------------------------------------------------------------------
+   al.x <- as.numeric(eval( parse( text = paste("alarms." , file.names[[name.i[1]]],"[,1]", sep = "")  )))
+   al.y <- as.numeric(eval( parse( text = paste("alarms." , file.names[[name.i[1]]],"[,2]", sep = "")  )))
+   plotting(data.pH1, 3,  al.x, al.y, 1840, len, TRUE, label=sensor.config[1]) 
+  # plotting(datasetRealTime[[1]], 3,  al.x, al.y, 1840, len, TRUE, label=sensor.config[1]) 
    
+   len = length(data.pH1$MINUTES)
+   
+   if (len > 241) {          # call alerts function  - need only dataset and length
+  #   dist <- paste("alerts." , file.names[[name.i[1]]], sep = "")
+  
+  #do.call( dist, data.pH1, len, 20)  
+     print("calling alarms")
+     alerts.pH1(data.pH1,len, wait=c(20,20) )
+   }
+  
+  #  plot(data.pH1$MINUTES, data.pH1$pH, type = "l" )    
+  #------------------------------------------------------------------------------------------  
     
 }
 

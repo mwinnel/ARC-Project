@@ -20,6 +20,9 @@ library(utils)
 library(gtools)
 library(caTools)
 library(grDevices)
+library(RCurl)
+library(R.utils)
+library(TTR)
 #library(rJava)
 #library(rJython)
 #library(RMySQL)
@@ -30,8 +33,9 @@ library(grDevices)
 #-----------------------------------------------------------------------------------------
 
 source("functions.R")
+source("alarms.extension.R")
 source("functionsGeneric.r")
-
+source("douglasFunction.R")
 
 #-----------------------------------------------------------------------------------------
 #  Some Globals - PLEASE DO NOT CHANGE !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -58,32 +62,21 @@ sensor.config <- c("TempA", "TempC", "pH", "Cond", "TurbS","TurbA",
                    "TempC2", "pH2", "Cond2", "TurbS2","TurbA2")   # order matters!!! effects how plots output - data order
 
 ### ADD IN SENSOR CONFIG FOR PLOTS _ SEPERATE FROM ALL DATA VARIABLES
-sensor.plot.process <- c("TempC", "pH", "Cond", "TurbS",
-                   "TempC2", "pH2", "Cond2", "TurbS2")   # order matters!!! effects how plots output
+sensor.plot.process <-  c("TempC", "pH", "Cond", "TurbS")  # order matters!!! effects how plots output
 
 
+siteName <- "melissa"
 kPeriod <- 1440  
+RealtimeRange <- 241
+RealtimeInterval <- 10
+ftpAdd <- "ftp://192.168.30.11"
+nodeID <- 4
+ftpAddress <- paste(ftpAdd,"/",nodeID,"/",sep="")
+
 
 name.i <- match(sensor.config,sensor.names.all)  ### index to get the sensor name variations. 
 n <- length(sensor.config)  # how many sensors in this unit
-
-lapply(1:5,function(i) data.frame())
-
-dataset <- sapply(sensor.config,function(x) data.frame())
-alarms <- sapply(sensor.config,function(x) NULL)
-UPDATE <- vector("logical", n)
-
-
-# NOTE: Can use llply and not have to do for loops anymore - or sapply
-for( i in 1:n ) {
-  
-  dataset[[i]] <- data.frame(matrix(0, nrow = 0, ncol = 4))
-  colnames(dataset[[i]]) <- c("Date", "Time", sensor.names.all[name.i[i]], "MINUTES")
-  alarms[[i]] <- as.data.frame(matrix(0, nrow = 0, ncol = 4))
-  colnames(alarms[[i]]) <- c("MINUTES", sensor.names.all[name.i[i]], "DIRECTION", "lenTIME")
-  
-}
-
+np <- length(sensor.plot.process)
 
 #-----------------------------------------------------------------------------------------
 #  Create socket for recieve live data - and main plotting window
@@ -95,12 +88,34 @@ read.socket(sensor.socket)
 
 windows(width = 60, height = 40)   
 
-if ( (n %% 2) == 0 ) {
-  par(mfcol = c(n/2,2))  
+
+if ( (np %% 2) == 0 ) {
+  par(mfcol = c(np/2,2))  
 } else {
-  par(mfcol = c(n,1))
+  par(mfcol = c(np,1))
 }
 
+
+## variable initialising ####################################################
+
+dataset <- sapply(sensor.config,function(x) data.frame())
+alarms <- sapply(sensor.config,function(x) NULL)
+waittimes <- sapply(sensor.config,function(x) NULL)
+UPDATE <- vector("logical", n)
+LastUPDATE_COUNT <-  c(rep(0,n))
+
+
+# NOTE: Can use llply and not have to do for loops anymore - or sapply
+for( i in 1:n ) {
+  
+  dataset[[i]] <- data.frame(matrix(0, nrow = 0, ncol = 4))
+  colnames(dataset[[i]]) <- c("Date", "Time", sensor.names.all[name.i[i]], "MINUTES")
+  alarms[[i]] <- as.data.frame(matrix(0, nrow = 0, ncol = 4))
+  colnames(alarms[[i]]) <- c("MINUTES", sensor.names.all[name.i[i]], "DIRECTION", "lenTIME")
+  waittimes[[i]] <- c(20,20)
+  
+  
+}
 
 
 #-----------------------------------------------------------------------------------------
@@ -142,22 +157,24 @@ system.codes2 <- as.data.frame(matrix(0, nrow = 1, ncol = 3))
 colnames(system.codes2) <- c("MINUTES", "Codes", "Action")
 
 
-probs.pH = c(.05,.95,.05,.95)
-probs.EC = c(.05,.95,.10,.90)
-probs.TurbS = c(.05,.95,.05,.95)
-probs.TempC =  c(.05,.95,.05,.95)
-probs.DisOxy = c(.05,.95,.05,.95)
-probs.Redox =  c(.05,.95,.05,.95)
+probs.pH = c(.025,.975,.025,.975)
+probs.EC = c(.025,.975,.025,.975)
+probs.TurbS = c(.025,.975,.025,.975)
+probs.TempC =  c(.025,.975,.025,.975)
+probs.DisOxy = c(.005,.995,.005,.995)
+probs.Redox =  c(.005,.995,.005,.995)
 
 
-bounds.pH = c(6.3,8.1)
-bounds.EC = c(940,3000)
-bounds.TurbA = c(50,100)
-bounds.TurbS = c(30, 600)
-bounds.TempA = c(20,24.6)
-bounds.TempC = c(19,22)
-bounds.DisOxy = c(0.0,2)
-bounds.Redox = as.numeric(c("-0.3800", "-0.28995" ) )
+
+#bounds.pH2 = c(6.3,8)
+#bounds.EC2 = c(940,3000)
+#bounds.TurbA2 = c(50,100)
+#bounds.TurbS2 = c(30, 600)
+#bounds.TempC2 = c(19,22)
+
+
+#bounds.DisOxy = c(0.0,2)
+#bounds.Redox = as.numeric(c("-0.3800", "-0.28995" ) )
 
 
 
@@ -167,8 +184,8 @@ bounds.Redox = as.numeric(c("-0.3800", "-0.28995" ) )
 alarms.pH1 <- as.data.frame(matrix(0, nrow = 1, ncol = 4))
 colnames(alarms.pH1) <- c("MINUTES", "pH", "DIRECTION", "lenTIME")
 
-alarms.EC1 <- as.data.frame(matrix(0, nrow = 1, ncol = 4))
-colnames(alarms.EC1) <- c("MINUTES", "EC", "DIRECTION", "lenTIME")
+alarms.Cond1 <- as.data.frame(matrix(0, nrow = 1, ncol = 4))
+colnames(alarms.Cond1) <- c("MINUTES", "Cond", "DIRECTION", "lenTIME")
 
 alarms.TurbS1 <- as.data.frame(matrix(0, nrow = 1, ncol = 4))
 colnames(alarms.TurbS1) <- c("MINUTES", "TurbS", "DIRECTION", "lenTIME")
@@ -179,11 +196,13 @@ colnames(alarms.TempC1) <- c("MINUTES", "TempC", "DIRECTION", "lenTIME")
 system.codes1 <- as.data.frame(matrix(0, nrow = 1, ncol = 3))
 colnames(system.codes1) <- c("MINUTES", "Codes", "Action")
 
+
+
 alarms.pH2 <- as.data.frame(matrix(0, nrow = 1, ncol = 4))
 colnames(alarms.pH2) <- c("MINUTES", "pH", "DIRECTION", "lenTIME")
 
-alarms.EC2 <- as.data.frame(matrix(0, nrow = 1, ncol = 4))
-colnames(alarms.EC2) <- c("MINUTES", "EC", "DIRECTION", "lenTIME")
+alarms.Cond2 <- as.data.frame(matrix(0, nrow = 1, ncol = 4))
+colnames(alarms.Cond2) <- c("MINUTES", "Cond", "DIRECTION", "lenTIME")
 
 alarms.TurbS2 <- as.data.frame(matrix(0, nrow = 1, ncol = 4))
 colnames(alarms.TurbS2) <- c("MINUTES", "TurbS", "DIRECTION", "lenTIME")
@@ -193,3 +212,52 @@ colnames(alarms.TempC2) <- c("MINUTES", "TempC", "DIRECTION", "lenTIME")
 
 system.codes2 <- as.data.frame(matrix(0, nrow = 1, ncol = 3))
 colnames(system.codes2) <- c("MINUTES", "Codes", "Action")
+
+
+#Files to transfer in compressed format
+#files <- c("dataset_Cond1.csv","dataset_Cond2.csv","dataset_pH1.csv","dataset_pH2.csv","dataset_TurbS1.csv","dataset_TurbS2.csv","dataset_TurbA1.csv","dataset_TurbA2.csv","dataset_TempC1.csv","dataset_TempC2.csv","dataset_TempA1.csv")
+files <- paste("dataset_",file.names,".csv",sep="")
+D_files <- paste("douglas_",file.names,".csv", sep="")
+#Filename of the compressed  data
+tgzName <- "data.tgz"
+D_tgzName <- "Douglas_data.tgz"
+#Update counter for realtime data
+updatecounter <- 0
+
+#update counter for Douglas data
+D_updatecounter <- 0
+trim.data <- 720
+LIVESTREAM <- TRUE
+
+ph.second.LOW <- 6.1
+ph.second.HIGH <- 8.9 
+
+##-------------------------------------------------------------------------
+##  CONSTANTS   & flags
+##-------------------------------------------------------------------------
+count <- 0
+period = 720
+
+variables <- c("pH", "Conductivity", "Turbidity", "Tempurature")
+TempC.Redox.DO <- toDecimal( c(0,0,0,1,1,1) )
+Redox.DO <-  toDecimal( c(0,0,0,0,1,1) )
+set.d <- FALSE
+
+
+###vars for multi
+reporting.length.wait <- 2
+buffer.period <- 15
+statechange.start.minutes <- 0
+
+emailSENT <- 0
+email.int.time <- 30
+
+#emailTO <- ''
+#emailFROM <- ''
+
+SentinelNO <- "4"
+BarrierNO <- "1"
+
+action<-"NONE"
+
+
