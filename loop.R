@@ -18,9 +18,9 @@ repeat {
   #      GET DATA 
   #------------------------------------------------------------------------- 
 
-  #dataset.mix <- GetData()  
+  dataset.mix <- GetData()  
   #dataset.mix <- dataTest()
- dataset.mix <- dataTestNew()
+# dataset.mix <- dataTestNew()
  
  for(i in 1:n){
    
@@ -90,14 +90,14 @@ repeat {
    last.sys.code <- Last(system.codes1$Codes)
    minutes <- Last(dataset$pH$MINUTES)
    current.sys.code <- AlarmLogicTest(minutes, last.alarms1, Last(system.codes1$Codes), reporting.length.wait=10, dataset$pH, EMAIL=FALSE, SMS=TRUE) 
-   current.code <<- current.sys.code
+   current.code <<- current.sys.code$code
  
    
    
    system.codes1 <- rbind(system.codes1, c(minutes, current.sys.code$code, action))
    
   if(current.sys.code$code != last.sys.code) {
-      write.table(cbind(minutes, current.sys.code$code, action, current.sys.code$tex, dataset$pH$Date, dataset$pH$Time), "System_Codes1.dat", row.names=FALSE, append=TRUE, col.names=FALSE)
+      write.table(cbind(minutes, current.sys.code$code, action, current.sys.code$txt, dataset$pH$Date, dataset$pH$Time), "System_Codes1.dat", row.names=FALSE, append=TRUE, col.names=FALSE)
    
     if (last.sys.code > 0)
     {
@@ -132,7 +132,7 @@ repeat {
     updatecounter <- 0   
   }
 
-Sys.sleep(5)
+#Sys.sleep(5)
 
 }
 

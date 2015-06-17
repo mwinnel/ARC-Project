@@ -33,7 +33,7 @@ library(TTR)
 #-----------------------------------------------------------------------------------------
 
 source("functions.R")
-source("alarms.extension.R")
+#source("alarms.extension.R")
 source("functionsGeneric.r")
 source("douglasFunction.R")
 
@@ -239,11 +239,11 @@ count <- 0
 period = 720
 
 variables <- c("pH", "Conductivity", "Turbidity", "Tempurature")
-TempC.Redox.DO <- toDecimal( c(0,0,0,1,1,1) )
-Redox.DO <-  toDecimal( c(0,0,0,0,1,1) )
+#TempC.Redox.DO <- toDecimal( c(0,0,0,1,1,1) )
+#Redox.DO <-  toDecimal( c(0,0,0,0,1,1) )
 set.d <- FALSE
 
-
+current.code <- 0
 ###vars for multi
 reporting.length.wait <- 2
 buffer.period <- 15

@@ -409,81 +409,6 @@ HandleSuppliedTime3 <- function(dataset, date.fmt, hourstart, minstart) {
 
 hadj.available <- getRversion() >= "2.2.0"
 
-LabelTimeAxisSec <- function() {
-  timerange <- par()$usr[1:2]   #gets the timerange in terms of MINUTES
-  extent <- diff(timerange) / 60 #gets the difference between two values
-  endtimes <- GetYMD(timerange / 60)   ##function to convert the minutes in timerange back to a date
-  start.mins <- timerange[1] / 60
-  end.mins <- timerange[2] / 60
-  # When extent of time axis is sufficiently large that we only label years
-  if(extent > 1000000) {
-    if(hadj.available) {
-      axis(1, at = YearBreaks, labels = YearBreakLabels, hadj = 0, tck=-.05, col = 1)
-     }
-    else {
-      axis(1, at = YearBreaks, labels = paste(" ", YearBreakLabels), tck = -.05, col = 1)
-    }
-    axis(1,at=MonthBreaks,labels=FALSE,col=1)
-  } 
-  else {
-    if (extent > 100000) {
-      # When label months
-      title(sub=as.character(endtimes$Year[1]),adj=0)
-      title(sub=as.character(endtimes$Year[2]),adj=1)
-      if (hadj.available) {
-        axis(1, at = MonthBreaks, labels = MonthBreakLabels, hadj = 0, tck = -.035, col = 1)
-      } 
-      else {
-        axis(1, at = MonthBreaks, labels = paste(" ", MonthBreakLabels), tck = -.035, col = 1)
-      }
-    } 
-    else {
-      if (extent > 10000) {
-        # When label days (within months)
-        title(sub=paste(endtimes$Month[1],endtimes$Year[1]),adj=0)
-        title(sub=paste(endtimes$Month[2],endtimes$Year[2]),adj=1)
-        if (hadj.available) {
-          axis(1, at = DayBreaks, labels = DayBreakLabels, hadj = 0, tck = -.035, col = 1)
-        } 
-        else {
-          axis(1, at = DayBreaks, labels = paste(" ", DayBreakLabels), tck = -.035, col = 1)
-        }
-      } 
-      else {
-        if(extent > 1000){
-          # When label some hours (within days)
-          title(sub = paste(endtimes$Day[1], endtimes$Month[1], endtimes$Year[1]), adj = 0)
-          title(sub = paste(endtimes$Day[2], endtimes$Month[2], endtimes$Year[2]), adj = 1)
-          axis(1, at = DayBreaks, labels = FALSE, tck = -.05)
-          n <- length(DayBreaks)
-          axis(1, at = DayBreaks + 720, labels = rep("12:00", n), tck = -.02, col = 1)
-          axis(1, at = DayBreaks + 360, labels = rep("6:00", n), tck = -.03, col = 1)
-          axis(1, at = DayBreaks + 1080, labels = rep("18:00", n), tck = -.02, col = 1)
-        } 
-        else {
-          if (extent > 300) {
-            # When label all hours (within days)
-            title(sub = paste(endtimes$Day[1], endtimes$Month[1], endtimes$Year[1]), adj = 0)                      ##paste at start of graph
-            title(sub = paste(endtimes$Day[2], endtimes$Month[2], endtimes$Year[2]), adj = 1)                   ##paste at end of graph
-            axis(1,at=DayBreaks,labels=FALSE,tck=-.07,col=1)
-            base <- start.mins - start.mins %% 1440
-            axis(1, at = (base * 60) + (60 * 60) * (0:47), labels = paste(rep(0:23,2), "00", sep=":"), tck = -.02, col = 1)
-          } 
-          else {
-            # When label every 10 minutes
-            title(sub = paste(endtimes$Day[1],endtimes$Month[1], endtimes$Year[1]), adj = 0)
-            title(sub = paste(endtimes$Day[2],endtimes$Month[2], endtimes$Year[2]), adj = 1)
-            base <- start.mins - start.mins %% 1440
-            axis(1, at = base + 60 * (0:47), labels = FALSE, tck = -.03, col = 1)
-            axis(1, at = base + 10 * (0:287), labels = paste(rep(rep(0:23, each = 6), 2), ":",
-                 rep(0:5,48), "0", sep = ""), tck = -.01, col = 1)
-          }
-        }
-      }
-    }
-  }
-}
-
 LabelTimeAxis <- function() {
   timerange <- par()$usr[1:2]
   extent <- diff(timerange)
@@ -570,22 +495,22 @@ alerts.pH1 <- function(data_set_2,
                        wait, 
                        probS = c(.05, .95, .05, .95),
                        period.to.show = 720, 
-                       bounds.pH = bounds.pH2) {
+                       bounds.pH = bounds.pH2, current.c = 0) {
   
   ### IN THIS EXTENDED VERSION - adding a seaonal trend value +_ adjusting based on seasonal trend of data for daily 
   ## for this site
   
   
-  if(current.code == 0){
+ # if(current.c == ph.code){
     trendline.pH <- runquantile(data_set_2$pH, 241, probs=c(0.5, 0.75))
-  }else {
+#  }else {
     ## stop the baseline update
-    dir.count <- max(countAB.pH1,countBW.pH1)
-    data_pause <- c(data_set_2$pH[1:(current_pos-dir.count)],
-                    rep(data_set_2$pH[(current_pos-dir.count)],dir.count))
-    trendline.pH <- runquantile(data_pause, 241, probs=c(0.5, 0.75))
+#    dir.count <- max(countAB.pH1,countBW.pH1)
+#    data_pause <- c(data_set_2$pH[1:(current_pos-dir.count)],
+#                    rep(data_set_2$pH[(current_pos-dir.count)],dir.count))
+#    trendline.pH <- runquantile(data_pause, 241, probs=c(0.5, 0.75))
     
-  }
+#  }
   
   
   POINTS <- FALSE
