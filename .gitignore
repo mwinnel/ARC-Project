@@ -1,0 +1,12 @@
+*.zip
+.Rproj.user
+README.html
+*.dat
+*.csv
+data.tgz
+*.dat
+dataset_Cond2.dat
+dataset_pH2.dat
+dataset_TempA1.dat
+dataset_Cond1.dat
+*.dat
