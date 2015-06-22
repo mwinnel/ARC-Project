@@ -565,7 +565,7 @@ alerts.pH1 <- function(data_set_2,
   if (POINTS) {
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$pH[current_pos], DIRECTION, max(countAB.pH1, countBW.pH1))
     alarms.pH1 <<- rbind(alarms.pH1, a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.pH1.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
+    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.pH1.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }
   
   
@@ -634,7 +634,7 @@ alerts.pH2 <- function(data_set_2, current_pos, wait=c(5, 5), probS = c(.05, .95
   if (POINTS) {
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$pH[current_pos], DIRECTION, max(countAB.pH2, countBW.pH2))
     alarms.pH2 <<- rbind(alarms.pH2, a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.pH2.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
+    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.pH2.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }
 }
 
@@ -687,7 +687,7 @@ alerts.TurbS1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95)
   if(POINTS) {
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$TurbS[current_pos], DIRECTION, max(countAB.TurbS1, countBW.TurbS1))
     alarms.TurbS1 <<- rbind(alarms.TurbS1,a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.TurbS1.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
+    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.TurbS1.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }     
   #return(trendline.TurbS[,1])
 }
@@ -742,7 +742,7 @@ alerts.TurbS2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95)
   if(POINTS) {
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$TurbS[current_pos], DIRECTION, max(countAB.TurbS2, countBW.TurbS2))
     alarms.TurbS2 <<- rbind(alarms.TurbS2,a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.TurbS2.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
+    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.TurbS2.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }     
   #return(trendline.TurbS[,1])
 }
@@ -798,7 +798,7 @@ alerts.TempC1 <- function(data_set_2, current_pos, probS = c(.05,.95,.05,.95),
     ##store points - add show history flag
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$TempC[current_pos], DIRECTION, max(countAB.TempC1, countBW.TempC1))
     alarms.TempC1 <<- rbind(alarms.TempC1,a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.TempC1.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
+    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.TempC1.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }
 }
 
@@ -852,99 +852,12 @@ alerts.TempC2 <- function(data_set_2, current_pos, probS = c(.05,.95,.05,.95),
     ##store points - add show history flag
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$TempC[current_pos], DIRECTION, max(countAB.TempC2, countBW.TempC2))
     alarms.TempC2 <<- rbind(alarms.TempC2,a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.TempC2.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
+    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.TempC2.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }
 }
 
 
-################################################################################
-#       alerts.Redox
-#
-################################################################################
-alerts.Redox <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95), 
-                         period.to.show = 720, bounds.Redox =  bounds.Redox2, wait = c(20, 20)) {
-  
-  trendline.Redox = runquantile(data_set_2$Redox, 241, probs = c(0.5,0.75))
-  POINTS <- FALSE
-  DIRECTION <- NULL
-  
-  if(data_set_2$Redox[current_pos] >= trendline.Redox[, 1][current_pos]) {
-    countAB.Redox <<- countAB.Redox + 1
-    countBW.Redox <<- 0
-    
-    ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if ((countAB.Redox >= wait[1]) && 
-          (mean(data_set_2$Redox[(current_pos-countAB.Redox):current_pos]) >= quantile(data_set_2$Redox[(current_pos - 241):(current_pos - countAB.Redox)], probs = probS[4])) &&
-          (max(data_set_2$Redox[(current_pos-countAB.Redox):current_pos]) > bounds.Redox[2])) {
-      POINTS <- TRUE
-      DIRECTION <- "AB"
-    } 
-  }
-  
-  if(data_set_2$Redox[current_pos] < trendline.Redox[, 1][current_pos]) {
-    countAB.Redox <<- 0
-    countBW.Redox <<- countBW.Redox + 1
-    ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if ((countBW.Redox >= wait[2]) && 
-          (mean(data_set_2$Redox[(current_pos-countBW.Redox):current_pos]) <= quantile(data_set_2$Redox[(current_pos - 241):(current_pos - countBW.Redox)], probs = probS[3])) &&
-          (min(data_set_2$Redox[(current_pos-countBW.Redox):current_pos]) < bounds.Redox[1])){
-      POINTS <- TRUE
-      DIRECTION <- "BW"
-    }
-  }
-  
-  if (POINTS == TRUE) {
-    ##store points - add show history flag
-    a <- c(data_set_2$MINUTES[current_pos], data_set_2$Redox[current_pos], DIRECTION, max(countAB.Redox, countBW.Redox))
-    alarms.Redox <<- rbind(alarms.Redox,a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.Redox.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
-  }
-}
 
-################################################################################
-#       alerts.DisOxy
-#
-################################################################################
-alerts.DisOxy <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
-                          period.to.show = 720, bounds.DisOxy = c(6.5, 7), wait = c(20, 20)) {
-  
-  trendline.DisOxy = runquantile(data_set_2$DisOxy, 241, probs=c(0.5, 0.75))
-  POINTS <- FALSE
-  DIRECTION <- NULL
-  
-  if(data_set_2$DisOxy[current_pos] >= trendline.DisOxy[,1][current_pos]){
-    countAB.DisOxy <<- countAB.DisOxy + 1
-    countBW.DisOxy <<- 0
-    
-    ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if ((countAB.DisOxy >= wait[1]) &&
-          (mean(data_set_2$DisOxy[(current_pos-countAB.DisOxy):current_pos]) >= quantile(data_set_2$DisOxy[(current_pos - 241):(current_pos - countAB.DisOxy)], probs = probS[4])) &&
-          (max(data_set_2$DisOxy[(current_pos-countAB.DisOxy):current_pos]) > bounds.DisOxy[2])) {
-      POINTS <- TRUE
-      DIRECTION <- "AB"
-    }
-  }
-  
-  if(data_set_2$DisOxy[current_pos] < trendline.DisOxy[,1][current_pos]) {
-    countAB.DisOxy <<- 0
-    countBW.DisOxy <<- countBW.DisOxy + 1
-    
-    ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if((countBW.DisOxy >= wait[2]) &&
-         (mean(data_set_2$DisOxy[(current_pos-countBW.DisOxy):current_pos]) <= quantile(data_set_2$DisOxy[(current_pos - 241):(current_pos - countBW.DisOxy)], probs = probS[3])) &&
-         (min(data_set_2$DisOxy[(current_pos-countBW.DisOxy):current_pos]) < bounds.DisOxy[1])) {
-      POINTS <- TRUE
-      DIRECTION <- "BW"
-    }
-  }
-  
-  if(POINTS) {
-    ##store points - add show history flag
-    a <- c(data_set_2$MINUTES[current_pos], data_set_2$DisOxy[current_pos], DIRECTION, max(countAB.DisOxy, countBW.DisOxy))
-    alarms.DisOxy <<- rbind(alarms.DisOxy, a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.DisOxy.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
-  }
-}
 
 ################################################################################
 #       alerts.EC1
@@ -993,7 +906,7 @@ alerts.Cond1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
     ##store points - add show history flag
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$Cond[current_pos], DIRECTION, max(countAB.EC1, countBW.EC1))
     alarms.Cond1 <<- rbind(alarms.Cond1,a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.EC1.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
+    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.EC1.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }
 }
 
@@ -1046,7 +959,7 @@ alerts.Cond2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
     ##store points - add show history flag
     a <- c(data_set_2$MINUTES[current_pos], data_set_2$Cond[current_pos], DIRECTION, max(countAB.EC2, countBW.EC2))
     alarms.Cond2 <<- rbind(alarms.Cond2,a)
-    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.EC2.dat", row.names = FALSE, append = TRUE, col.names = FALSE)
+    write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.EC2.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }
 }
 

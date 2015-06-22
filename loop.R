@@ -11,7 +11,6 @@
 #
 #
 #------------------------------------------------------------------------------------------
-key.sensor <-  match(sensor.config,sensor.plot.process) 
 
 repeat {
   #-------------------------------------------------------------------------
@@ -23,7 +22,7 @@ repeat {
 # dataset.mix <- dataTestNew()
  
  for(i in 1:n){
-   
+  
    dataset.mix[[i]][[3]] <- as.numeric(as.character(dataset.mix[[i]][[3]]))
    dataset.mix[[i]][[4]] <- as.numeric(as.character(dataset.mix[[i]][[4]]))
    
@@ -45,7 +44,7 @@ repeat {
       #---------------------------------------------------------------------------------
       filename <- paste("dataset_",file.names[name.i[j]],".dat", sep="")
       csvfilename <- paste("dataset_",file.names[name.i[j]],".csv", sep="")  
-      write.table(dataset.mix[[j]], filename, sep="," , row.names = FALSE, append = TRUE, col.names = FALSE)
+      write.table(dataset.mix[[j]], filename, sep="," , row.names = FALSE, append = TRUE, col.names = FALSE,quote=F)
       dataset[[j]] <- rbind(dataset[[j]], dataset.mix[[j]])
       lenNewData <- dim(dataset.mix[[j]])[1]
       
@@ -97,7 +96,12 @@ repeat {
    system.codes1 <- rbind(system.codes1, c(minutes, current.sys.code$code, action))
    
   if(current.sys.code$code != last.sys.code) {
-      write.table(cbind(minutes, current.sys.code$code, action, current.sys.code$txt, dataset$pH$Date, dataset$pH$Time), "System_Codes1.dat", row.names=FALSE, append=TRUE, col.names=FALSE)
+    
+    ## why is it storing everythig as characters???
+      write.table(as.data.frame(cbind(as.numeric(minutes) , current.sys.code$code, action, current.sys.code$txt, 
+                        as.character(dataset$pH$Date[dataset$pH$MINUTES==minutes]), 
+                        as.character(dataset$pH$Time[dataset$pH$MINUTES==minutes])))
+                  , "System_Codes1.dat", sep=",", row.names=FALSE, append=TRUE, col.names=FALSE,quote=F)
    
     if (last.sys.code > 0)
     {
@@ -123,7 +127,7 @@ repeat {
          
      ToTgz(tgzName,files)
      print("LIVE STREAM UPDATE")
-       tryCatch({ ftpUpload(tgzName, paste("ftp://192.168.30.11/","alData.tgz",sep=""))}, condition=function(ex) {
+       tryCatch({ ftpUpload(tgzName, paste("ftp://192.168.30.11/",tgzName,sep=""))}, condition=function(ex) {
           a <- print(ex)
           write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
    }

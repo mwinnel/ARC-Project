@@ -166,11 +166,11 @@ probs.Redox =  c(.005,.995,.005,.995)
 
 
 
-#bounds.pH2 = c(6.3,8)
-#bounds.EC2 = c(940,3000)
-#bounds.TurbA2 = c(50,100)
-#bounds.TurbS2 = c(30, 600)
-#bounds.TempC2 = c(19,22)
+bounds.pH2 = c(6.3,8)
+bounds.EC2 = c(940,3000)
+bounds.TurbA2 = c(50,100)
+bounds.TurbS2 = c(30, 600)
+bounds.TempC2 = c(19,22)
 
 
 #bounds.DisOxy = c(0.0,2)
@@ -260,4 +260,6 @@ BarrierNO <- "1"
 
 action<-"NONE"
 
+#------------------------------------------------------------------------------------------
+key.sensor <-  match(sensor.config,sensor.plot.process) 
 

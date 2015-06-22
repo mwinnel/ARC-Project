@@ -27,7 +27,7 @@ f <- c(unlist(a_files),unlist(a_files2),unlist(a_files3))
 ToTgz(a_tgzName,f)
 
 
-tryCatch({ ftpUpload(a_tgzName, paste(ftpAddress,a_tgzName,sep=""))}, condition=function(ex) {
+tryCatch({ ftpUpload(a_tgzName, paste("ftp://192.168.30.11/",a_tgzName,sep=""))}, condition=function(ex) {
   a <- print(ex)
   write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE);
   #ftp failed so set to start.minute to do again next time

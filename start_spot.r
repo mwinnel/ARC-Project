@@ -37,7 +37,7 @@ rm(set.df,df.names,file,dataset.previous,row.has.na)
 for (j in 1:n) {
   # plot data
   if( !is.na(key.sensor[j]) ) {
-  par(mar=c(1,1,1,1))
+  #par(mar=c(1,1,1,1))
   plotting(dataset[[j]], 3, alarms[[j]], kPeriod,241, 241, label = sensor.names.all[name.i[j]]) 
   }
   
