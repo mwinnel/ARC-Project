@@ -59,9 +59,20 @@ repeat {
           al.y <- as.numeric(eval( parse( text = paste("alarms." , file.names[[name.i[j]]],"[,2]", sep = "")  )))
           plotting(dataset[[j]], 3,  al.x,al.y, 1840, len, TRUE, label=sensor.config[j]) 
            
-          if (len > 241) {          # call alerts function  - need only dataset and length
+          
+          counts1 <- as.numeric(eval( parse( text = paste("countAB." , file.names[[name.i[j]]], sep = "")  )))
+          counts2 <- as.numeric(eval( parse( text = paste("countBW." , file.names[[name.i[j]]], sep = "")  )))
+          
+          
+          
+          if (len > 241 && len < max(counts1,counts2)) {          # call alerts function  - need only dataset and length
             dist <- paste("alerts." , file.names[[name.i[j]]], sep = "")
             do.call( dist, list(dataset[[j]] , len, wait=waittimes[[j]] ))    
+          }else if (len >=  max(counts1,counts2))
+          {
+            #reset count
+            as.numeric(eval( parse( text = paste("countAB." , file.names[[name.i[j]]], sep = "","<- 0")  ))) 
+            as.numeric(eval( parse( text = paste("countBW." , file.names[[name.i[j]]], sep = "","<- 0")  ))) 
           }
         
         }else{

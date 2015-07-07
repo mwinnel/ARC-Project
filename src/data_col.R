@@ -72,7 +72,7 @@ siteName <- "melissa"
 kPeriod <- 1440  
 RealtimeRange <- 241
 RealtimeInterval <- 10
-ftpAdd <- "ftp://192.168.30.11"
+ftpAdd <- "ftp://192.168.30.10"
 nodeID <- 4
 ftpAddress <- paste(ftpAdd,"/",nodeID,"/",sep="")
 
@@ -130,11 +130,11 @@ countBW.pH1 <- 0
 countAB.pH2 <- 0
 countBW.pH2 <- 0
 
-countAB.EC1 <- 0
-countBW.EC1 <- 0
+countAB.Cond1 <- 0
+countBW.Cond1 <- 0
 
-countAB.EC2 <- 0
-countBW.EC2 <- 0
+countAB.Cond2 <- 0
+countBW.Cond2 <- 0
 
 countAB.TurbS1 <- 0
 countBW.TurbS1 <- 0

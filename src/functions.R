@@ -530,6 +530,7 @@ alerts.pH1 <- function(data_set_2,
   
   # data_set_2 <- data_set_2 + seasonalAdjust 
   
+
   if (data_set_2$pH[current_pos] >= trendline.pH[, 1][current_pos]) {
     countAB.pH1 <<- countAB.pH1 + 1
     countBW.pH1 <<- 0
@@ -881,15 +882,15 @@ alerts.Cond1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   DIRECTION <- NULL
   
   if (data_set_2$Cond[current_pos] >= trendline.EC[, 1][current_pos]) {
-    countAB.EC1 <<- countAB.EC1 + 1
-    countBW.EC1 <<- 0
+    countAB.Cond1 <<- countAB.Cond1 + 1
+    countBW.Cond1 <<- 0
     ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if((!is.na(mean(data_set_2$Cond[(current_pos-countAB.EC1):current_pos])))&&
-         (!is.na(max(data_set_2$Cond[(current_pos-countAB.EC1):current_pos])))&&
-         (!is.na(quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countAB.EC1)], probs = probS[4])))){
-      if ((countAB.EC1 >= wait[1]) &&
-            (mean(data_set_2$Cond[(current_pos-countAB.EC1):current_pos]) >= quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countAB.EC1)], probs = probS[4])) &&
-            (max(data_set_2$Cond[(current_pos-countAB.EC1):current_pos]) > bounds.EC[2])) {
+    if((!is.na(mean(data_set_2$Cond[(current_pos-countAB.Cond1):current_pos])))&&
+         (!is.na(max(data_set_2$Cond[(current_pos-countAB.Cond1):current_pos])))&&
+         (!is.na(quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countAB.Cond1)], probs = probS[4])))){
+      if ((countAB.Cond1 >= wait[1]) &&
+            (mean(data_set_2$Cond[(current_pos-countAB.Cond1):current_pos]) >= quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countAB.Cond1)], probs = probS[4])) &&
+            (max(data_set_2$Cond[(current_pos-countAB.Cond1):current_pos]) > bounds.EC[2])) {
         POINTS <- TRUE
         DIRECTION <- "AB"
       }
@@ -897,15 +898,15 @@ alerts.Cond1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   }
   
   if(data_set_2$Cond[current_pos] < trendline.EC[, 1][current_pos]) {
-    countAB.EC1 <<- 0
-    countBW.EC1 <<- countBW.EC1 + 1
+    countAB.Cond1 <<- 0
+    countBW.Cond1 <<- countBW.Cond1 + 1
     ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if((!is.na(mean(data_set_2$Cond[(current_pos-countBW.EC1):current_pos])))&&
-         (!is.na(max(data_set_2$Cond[(current_pos-countBW.EC1):current_pos])))&&
-         (!is.na(quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countBW.EC1)], probs = probS[3])))){
-      if((countBW.EC1 >= wait[2]) &&
-           (mean(data_set_2$Cond[(current_pos-countBW.EC1):current_pos])<= quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countBW.EC1)], probs = probS[3])) &&
-           (min(data_set_2$Cond[(current_pos-countBW.EC1):current_pos]) < bounds.EC[1])) {
+    if((!is.na(mean(data_set_2$Cond[(current_pos-countBW.Cond1):current_pos])))&&
+         (!is.na(max(data_set_2$Cond[(current_pos-countBW.Cond1):current_pos])))&&
+         (!is.na(quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countBW.Cond1)], probs = probS[3])))){
+      if((countBW.Cond1 >= wait[2]) &&
+           (mean(data_set_2$Cond[(current_pos-countBW.Cond1):current_pos])<= quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countBW.Cond1)], probs = probS[3])) &&
+           (min(data_set_2$Cond[(current_pos-countBW.Cond1):current_pos]) < bounds.EC[1])) {
         POINTS <- TRUE
         DIRECTION <- "BW"
       }
@@ -914,7 +915,7 @@ alerts.Cond1 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   
   if(POINTS == TRUE) {
     ##store points - add show history flag
-    a <- c(data_set_2$MINUTES[current_pos], data_set_2$Cond[current_pos], DIRECTION, max(countAB.EC1, countBW.EC1))
+    a <- c(data_set_2$MINUTES[current_pos], data_set_2$Cond[current_pos], DIRECTION, max(countAB.Cond1, countBW.Cond1))
     alarms.Cond1 <<- rbind(alarms.Cond1,a)
     write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.EC1.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }
@@ -934,15 +935,15 @@ alerts.Cond2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   DIRECTION <- NULL
   
   if (data_set_2$Cond[current_pos] >= trendline.EC[, 1][current_pos]) {
-    countAB.EC2 <<- countAB.EC2 + 1
-    countBW.EC2 <<- 0
+    countAB.Cond2 <<- countAB.Cond2 + 1
+    countBW.Cond2 <<- 0
     ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if((!is.na(mean(data_set_2$Cond[(current_pos-countAB.EC2):current_pos])))&&
-         (!is.na(max(data_set_2$Cond[(current_pos-countAB.EC2):current_pos])))&&
-         (!is.na(quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countAB.EC2)], probs = probS[4])))){
-      if ((countAB.EC2 >= wait[1]) &&
-            (mean(data_set_2$Cond[(current_pos-countAB.EC2):current_pos]) >= quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countAB.EC2)], probs = probS[4])) &&
-            (max(data_set_2$Cond[(current_pos-countAB.EC2):current_pos]) > bounds.EC[2])) {
+    if((!is.na(mean(data_set_2$Cond[(current_pos-countAB.Cond2):current_pos])))&&
+         (!is.na(max(data_set_2$Cond[(current_pos-countAB.Cond2):current_pos])))&&
+         (!is.na(quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countAB.Cond2)], probs = probS[4])))){
+      if ((countAB.Cond2 >= wait[1]) &&
+            (mean(data_set_2$Cond[(current_pos-countAB.Cond2):current_pos]) >= quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countAB.Cond2)], probs = probS[4])) &&
+            (max(data_set_2$Cond[(current_pos-countAB.Cond2):current_pos]) > bounds.EC[2])) {
         POINTS <- TRUE
         DIRECTION <- "AB"
       }
@@ -950,15 +951,15 @@ alerts.Cond2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   }
   
   if(data_set_2$Cond[current_pos] < trendline.EC[, 1][current_pos]) {
-    countAB.EC2 <<- 0
-    countBW.EC2 <<- countBW.EC2 + 1
+    countAB.Cond2 <<- 0
+    countBW.Cond2 <<- countBW.Cond2 + 1
     ###if smaller sample mean is greater then previous 2 hours and point outside bounds then  ALARM
-    if((!is.na(mean(data_set_2$Cond[(current_pos-countBW.EC2):current_pos])))&&
-         (!is.na(max(data_set_2$Cond[(current_pos-countBW.EC2):current_pos])))&&
-         (!is.na(quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countBW.EC2)], probs = probS[3])))){
-      if((countBW.EC2 >= wait[2]) &&
-           (mean(data_set_2$Cond[(current_pos-countBW.EC2):current_pos])<= quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countBW.EC2)], probs = probS[3])) &&
-           (min(data_set_2$Cond[(current_pos-countBW.EC2):current_pos]) < bounds.EC[1])) {
+    if((!is.na(mean(data_set_2$Cond[(current_pos-countBW.Cond2):current_pos])))&&
+         (!is.na(max(data_set_2$Cond[(current_pos-countBW.Cond2):current_pos])))&&
+         (!is.na(quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countBW.Cond2)], probs = probS[3])))){
+      if((countBW.Cond2 >= wait[2]) &&
+           (mean(data_set_2$Cond[(current_pos-countBW.Cond2):current_pos])<= quantile(data_set_2$Cond[(current_pos - 241):(current_pos - countBW.Cond2)], probs = probS[3])) &&
+           (min(data_set_2$Cond[(current_pos-countBW.Cond2):current_pos]) < bounds.EC[1])) {
         POINTS <- TRUE
         DIRECTION <- "BW"
       }
@@ -967,7 +968,7 @@ alerts.Cond2 <- function(data_set_2, current_pos, probS = c(.05, .95, .05, .95),
   
   if(POINTS == TRUE) {
     ##store points - add show history flag
-    a <- c(data_set_2$MINUTES[current_pos], data_set_2$Cond[current_pos], DIRECTION, max(countAB.EC2, countBW.EC2))
+    a <- c(data_set_2$MINUTES[current_pos], data_set_2$Cond[current_pos], DIRECTION, max(countAB.Cond2, countBW.Cond2))
     alarms.Cond2 <<- rbind(alarms.Cond2,a)
     write.table(cbind(a[1], a[2], a[3], a[4]), "alarms.EC2.dat", row.names = FALSE, append = TRUE, col.names = FALSE,quote=F,sep=",")
   }
