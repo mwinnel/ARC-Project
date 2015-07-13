@@ -5,5 +5,5 @@ setwd(paste(setDir,"src",sep="/"))
 
 source(paste(setDir,"src","/data_col.R",sep=""))
 setwd(paste(setDir,"data/",sep=""))
-source(paste(setDir,"src","/start_spot.R",sep=""))
+#source(paste(setDir,"src","/start_spot.R",sep=""))
 source(paste(setDir,"src","/loop.R",sep=""))

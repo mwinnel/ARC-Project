@@ -17,7 +17,12 @@ repeat {
   #      GET DATA 
   #------------------------------------------------------------------------- 
 
+  
+  ## put loop around here to listen for new data - sleep if none
+  
   dataset.mix <- GetData()  
+  
+  
   #dataset.mix <- dataTest()
 # dataset.mix <- dataTestNew()
  
@@ -35,6 +40,7 @@ repeat {
   #-------------------------------------------------------------------------   
   for ( j in 1:n ) {
     
+    datanew <- dataset.mix[[j]]
     ptm2 <- proc.time()
     
     if ( UPDATE[j] ) {
@@ -44,20 +50,41 @@ repeat {
       #---------------------------------------------------------------------------------
       filename <- paste("dataset_",file.names[name.i[j]],".dat", sep="")
       csvfilename <- paste("dataset_",file.names[name.i[j]],".csv", sep="")  
-      write.table(dataset.mix[[j]], filename, sep="," , row.names = FALSE, append = TRUE, col.names = FALSE,quote=F)
-      dataset[[j]] <- rbind(dataset[[j]], dataset.mix[[j]])
-      lenNewData <- dim(dataset.mix[[j]])[1]
+     
+      write.table(datanew, filename, sep="," , row.names = FALSE, append = TRUE, col.names = FALSE,quote=F)
+      
+      ### REPLACE LOOPS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      print("UPDATE TRUE !!!!!!!")
+      (eval( parse( text = 
+                      paste(  "dataset.", file.names[[name.i[j]]], " <- rbind(dataset.", file.names[[name.i[j]]],", datanew)",   sep="" )  
+      )))
+      
+      
+     # dataset[[j]] <- rbind(dataset[[j]], dataset.mix[[j]])
+      lenNewData <- dim(datanew)[1]
+     
       
       #-------------------------------------------------------------------------
       #      PROCESS DATA  -- changed
       #-------------------------------------------------------------------------
-      len <- dim(dataset[[j]])[1]
-      
+      #len <- dim(dataset[[j]])[1]
+     
+     (eval( parse( text = 
+                     paste(  "len <- dim(dataset.", file.names[[name.i[j]]], ")[1]",   sep="" )  
+     )))
+     
+     
+     
       if (len > 2) { 
         if( !is.na(key.sensor[j]) ) {   ## Is this a sensor value we wish to plot and process for alarms?
           al.x <- as.numeric(eval( parse( text = paste("alarms." , file.names[[name.i[j]]],"[,1]", sep = "")  )))
           al.y <- as.numeric(eval( parse( text = paste("alarms." , file.names[[name.i[j]]],"[,2]", sep = "")  )))
-          plotting(dataset[[j]], 3,  al.x,al.y, 1840, len, TRUE, label=sensor.config[j]) 
+         
+          
+          
+          #NO LONGER NEED PLOTTING _ OR REPLACE LOOPS
+          #plotting(dataset[[j]], 3,  al.x,al.y, 1840, len, TRUE, label=sensor.config[j]) 
            
           
           counts1 <- as.numeric(eval( parse( text = paste("countAB." , file.names[[name.i[j]]], sep = "")  )))
@@ -67,7 +94,15 @@ repeat {
           
           if (len > 241 && len < max(counts1,counts2)) {          # call alerts function  - need only dataset and length
             dist <- paste("alerts." , file.names[[name.i[j]]], sep = "")
-            do.call( dist, list(dataset[[j]] , len, wait=waittimes[[j]] ))    
+            
+            
+            
+            ### REPLACE LOOPS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            do.call( dist, list(
+              (eval( parse( text =  
+              paste("dataset." , file.names[[name.i[j]]], sep = "") ))), len, wait=waittimes[[j]] ))  
+            
+            
           }else if (len >=  max(counts1,counts2))
           {
             #reset count
@@ -79,10 +114,15 @@ repeat {
           print("NOT KEY SENSOR")
       }}      
       
-      # if length of data set greater than 1500 points - trim.data <- default 720  
-      if (len > trim.data) { dataset[[j]] <- tail(dataset[[j]], n = -1) }
+      # if length of data set greater than 1500 points - trim.data <- default 720 
+      
+      ### REPLACE LOOPS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      if (len > trim.data) {  (eval( parse( text =  
+                                              paste("dataset." , file.names[[name.i[j]]], sep = "") ))) <- tail( (eval( parse( text =  
+                                                                                                                                 paste("dataset." , file.names[[name.i[j]]], sep = "") ))), n = -1) }
 
-      write.csv(tail(dataset[[j]], n=lenNewData ), file = csvfilename, row.names = FALSE) 
+      write.csv(tail( (eval( parse( text =  
+                                      paste("dataset." , file.names[[name.i[j]]], sep = "") ))), n=lenNewData ), file = csvfilename, row.names = FALSE) 
       csvname <- paste("dataset_",file.names[name.i[j]],".csv", sep="")
       # CHECK : System Time - if maintenance due.  -- moved this code to runDataCompression.R
     
@@ -98,8 +138,9 @@ repeat {
    #-----------------------------------------------------------------------------  
    last.alarms1 <- c(as.numeric(Last(alarms.pH1[,1])),as.numeric(Last(alarms.Cond1[,1])), as.numeric(Last(alarms.TurbS1[,1])), as.numeric(Last(alarms.TempC1[,1]))) 
    last.sys.code <- Last(system.codes1$Codes)
-   minutes <- Last(dataset$pH$MINUTES)
-   current.sys.code <- AlarmLogicTest(minutes, last.alarms1, Last(system.codes1$Codes), reporting.length.wait=10, dataset$pH, EMAIL=FALSE, SMS=TRUE) 
+   minutes <- Last(dataset.pH1$MINUTES)
+   
+   current.sys.code <- AlarmLogicTest(minutes, last.alarms1, Last(system.codes1$Codes), reporting.length.wait=10, dataset.pH1, EMAIL=FALSE, SMS=TRUE) 
    current.code <<- current.sys.code$code
  
    
@@ -110,8 +151,8 @@ repeat {
     
     ## why is it storing everythig as characters???
       write.table(as.data.frame(cbind(as.numeric(minutes) , current.sys.code$code, action, current.sys.code$txt, 
-                        as.character(dataset$pH$Date[dataset$pH$MINUTES==minutes]), 
-                        as.character(dataset$pH$Time[dataset$pH$MINUTES==minutes])))
+                        as.character(dataset.pH1$Date[dataset.pH1$MINUTES==minutes]), 
+                        as.character(dataset.pH1$Time[dataset.pH1$MINUTES==minutes])))
                   , "System_Codes1.dat", sep=",", row.names=FALSE, append=TRUE, col.names=FALSE,quote=F)
    
     if (last.sys.code > 0)
@@ -138,7 +179,7 @@ repeat {
          
      ToTgz(tgzName,files)
      print("LIVE STREAM UPDATE")
-       tryCatch({ ftpUpload(tgzName, paste("ftp://192.168.30.11/",tgzName,sep=""))}, condition=function(ex) {
+       tryCatch({ ftpUpload(tgzName, paste(ftpAddress,tgzName,sep=""))}, condition=function(ex) {
           a <- print(ex)
           write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
    }
@@ -147,7 +188,7 @@ repeat {
     updatecounter <- 0   
   }
 
-#Sys.sleep(5)
+Sys.sleep(5)
 
 }
 

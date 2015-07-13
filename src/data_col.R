@@ -111,14 +111,17 @@ LastUPDATE_COUNT <-  c(rep(0,n))
 # NOTE: Can use llply and not have to do for loops anymore - or sapply
 for( i in 1:n ) {
   
-  dataset[[i]] <- data.frame(matrix(0, nrow = 0, ncol = 4))
-  colnames(dataset[[i]]) <- c("Date", "Time", sensor.names.all[name.i[i]], "MINUTES")
-  alarms[[i]] <- as.data.frame(matrix(0, nrow = 0, ncol = 4))
-  colnames(alarms[[i]]) <- c("MINUTES", sensor.names.all[name.i[i]], "DIRECTION", "lenTIME")
+  (eval( parse( text = paste("dataset.", file.names[[name.i[i]]], "<- data.frame(matrix(NA, nrow = 0, ncol = 4))", sep="") )))
+  nameslabels <- c("Date", "Time",sensor.names.all[name.i[i]], "MINUTES" )
+  (eval( parse( text = 
+                  paste(  "colnames(dataset.", file.names[[name.i[i]]], ")<- nameslabels",   sep="" )  
+  )))
+
   waittimes[[i]] <- c(20,20)
   
   
 }
+
 
 
 #-----------------------------------------------------------------------------------------

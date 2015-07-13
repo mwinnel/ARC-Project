@@ -192,15 +192,8 @@ dataTestNew <- function(varname = sensor.config){
   
 }
 
-
-
-
-
-
-
-
 GetData <- function(varname = sensor.config) {
-
+  
   n <- length(varname)
   dflist <- vector( "list", n )
   for( i in 1:n ){
@@ -208,13 +201,96 @@ GetData <- function(varname = sensor.config) {
     dflist[[i]] <- data.frame(matrix(NA, nrow=0, ncol=4))
     colnames(dflist[[i]]) <- c("Date", "Time", varname[i], "MINUTES")
     
+  }
+  
+  
+  
+  repeat{   
+    write.socket(sensor.socket,"Data\r\n")
+    
+    tryCatch({  dataSS <- read.socket(sensor.socket) }, condition=function(ex) {
+      a <- print(ex)
+      write(paste(Sys.time(),as.character(a),sep=" "), "log.txt",  append=TRUE); })
+
+    if(!exists("dataSS")){
+      close.socket(sensor.socket)
+      sensor.socket <<- make.socket(host="localhost", port=8888)
+      read.socket(sensor.socket)
+      print(paste("socket read error"))
+      break
     }
   
+    print(paste("DATA =",dataSS))
+    
+    a <- unlist(strsplit(dataSS, "\\,"))
+    
+    if ( !is.na(match(a[1], "None\r\n")) ){  break  }
+    
+    
+    if( !is.na(match(dataSS,"\r\n")) || !is.na(match(dataSS,"")) ) {
+      close.socket(sensor.socket)
+      sensor.socket <<- make.socket(host="localhost", port=8888)
+      read.socket(sensor.socket)
+      print(paste("socket read error"))
+      break
+    }
+    
+    
+    if( !is.na(a[2]) ) {
+      
+      pos <- match(a[2],varname)
+      
+      if(!is.na(pos)) {
+        
+        UPDATE[pos] <<- TRUE
+        
+        returned_data <- cbind( unlist(strsplit(a[3], " "))[[1]] , unlist( strsplit(a[3], " ") )[[2]] )
+        colnames(returned_data ) <- c("Date", "Time") 
+        
+        ## AM OR PM
+        
+        m <- HandleSuppliedTime(as.data.frame(returned_data) ,"%d/%m/%Y",hourstart = 1 ,
+                                minstart = 4 , )
+        
+        print("minutes done")
+        #l <- dim(dflist[[pos]])[1] + 1
+        d <- cbind( unlist(strsplit(a[3], " "))[[1]] , unlist( strsplit(a[3], " ") )[[2]], as.numeric(unlist(strsplit(a[4], "\r\n")[[1]])),
+                    as.data.frame(m ) )
+        
+        colnames(d) <- c("Date", "Time", varname[pos], "MINUTES")
+        #d[,3] <- as.numeric(levels(d[,3]))[f]
+        
+        dflist[[pos]] <- rbind( dflist[[pos]],as.data.frame(d) )
+        colnames(dflist[[pos]]) <- c("Date", "Time", varname[pos], "MINUTES")
+        
+        
+        
+      }
+    }
+    
+  } #end repeat
+  
+  return(dflist)
   
   
+}
+
+
+GetData2 <- function(varname = sensor.config) {
+  ## returned_data table format Sensor Name, Date, Time, Value,MINUTES, POS
+  
+  returned_data_table <- data.frame(matrix(NA, nrow = 0, ncol = 6))
+  colnames(returned_data_table) <- c("Date", "Time","Value", "MINUTES", "SensorName","POS")
+ 
 repeat{   
+
+  
   write.socket(sensor.socket,"Data\r\n")
+
   dataSS <- read.socket(sensor.socket)
+  
+  
+  
   print(paste("DATA =",dataSS))
   
   a <- unlist(strsplit(dataSS, "\\,"))
@@ -229,8 +305,11 @@ repeat{
     print(paste("socket read error"))
     break
   }
+  
+  ### NEGATIVE LENGTH READ ??   
  
   
+  ## process returned data string
   if( !is.na(a[2]) ) {
     
     pos <- match(a[2],varname)
@@ -249,26 +328,40 @@ repeat{
     
     print("minutes done")
     #l <- dim(dflist[[pos]])[1] + 1
-    d <- cbind( unlist(strsplit(a[3], " "))[[1]] , unlist( strsplit(a[3], " ") )[[2]], as.numeric(unlist(strsplit(a[4], "\r\n")[[1]])),
-                as.data.frame(m ) )
+#    d <- (eval( parse( text =  
+ #                        paste("dflist." , file.names[[name.i[pos]]],sep="") )))
     
-    colnames(d) <- c("Date", "Time", varname[pos], "MINUTES")
+    d <- cbind( unlist(strsplit(a[3], " "))[[1]] , unlist( strsplit(a[3], " ") )[[2]], as.numeric(unlist(strsplit(a[4], "\r\n")[[1]])),
+                as.data.frame(m ),file.names[[name.i[pos]]],pos )
+    d <-  colnames(returned_data_table) <- c("Date", "Time","Value", "MINUTES", "SensorName","POS")
+
+    returned_data_table <- rbind(returned_data_table, d)
+    
+   
     #d[,3] <- as.numeric(levels(d[,3]))[f]
     
-    dflist[[pos]] <- rbind( dflist[[pos]],as.data.frame(d) )
-    colnames(dflist[[pos]]) <- c("Date", "Time", varname[pos], "MINUTES")
+    # colnames(dflist[[pos]]) <- c("Date", "Time", varname[pos], "MINUTES")
+    
+    
     
     
      
     }
   }
   
+  
+  
   } #end repeat
 
-  return(dflist)
+
+  return(returned_data_table) 
+         
+
 
 
 }
+
+
 
 
 # Calculate supplied time from 2000/1/1.  
