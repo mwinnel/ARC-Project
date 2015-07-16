@@ -244,9 +244,12 @@ GetData <- function(varname = sensor.config) {
         
         UPDATE[pos] <<- TRUE
         
-        returned_data <- cbind( unlist(strsplit(a[3], " "))[[1]] , unlist( strsplit(a[3], " ") )[[2]] )
-        colnames(returned_data ) <- c("Date", "Time") 
+        if( nchar(a[3]) <= 10 ){  #check if the time stamp is too short - bug in midnight timestamps
+          a[3] <- as.character(format(Sys.time(), "%d/%m/%Y %H:%M:%S"))
+        }
         
+        returned_data <- cbind( unlist(strsplit(a[3]," "))[[1]], unlist(strsplit(a[3]," "))[[2]])
+        colnames(returned_data ) <- c("Date", "Time") 
         ## AM OR PM
         
         m <- HandleSuppliedTime(as.data.frame(returned_data) ,"%d/%m/%Y",hourstart = 1 ,
