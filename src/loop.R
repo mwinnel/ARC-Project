@@ -135,7 +135,7 @@ repeat {
     updatecounter <- 0   
   }
   
-  #Sys.sleep(5)
+  Sys.sleep(15)
   
 }
 
